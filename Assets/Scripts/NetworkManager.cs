@@ -63,7 +63,6 @@ public class NetworkManager : MonoBehaviour, INetEventListener
 
     public void OnPeerConnected(NetPeer peer)
     {
-        Debug.Log("Peer connesso!");
     }
 
 
@@ -111,6 +110,12 @@ public class NetworkManager : MonoBehaviour, INetEventListener
     private void CreateServer()
     {
         if (SetupNetManager()) netManager.Start(1337);
+        if (!netManager.IsRunning)
+        {
+            Debug.LogError("Errore! Il server non si è avviato!");
+            Application.Quit();
+        }
+            Debug.Log($"Server avviato su porta {netManager.LocalPort}");
         networkMap.StartMapManager();
     }
 

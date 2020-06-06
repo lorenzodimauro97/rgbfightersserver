@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using LiteNetLib;
 using UnityEngine;
 
@@ -25,6 +26,8 @@ public class NetworkPlayers : MonoBehaviour
     {
         if (players.Find(x => x.Name.Equals(playerData[1])))
             NetworkManager.DisconnectClient("Username Already in use", peer);
+        
+        Debug.Log($"Peer {playerData[1]} connesso!");
 
         _networkManager.networkMap.SendMatchStatus(peer);
         _networkManager.SendChatMessage($"ChatMessage@Server:{playerData[1]} Si è Connesso!");
@@ -79,10 +82,11 @@ public class NetworkPlayers : MonoBehaviour
         SendPlayerPositionToClients(peer, playerData);
     }
 
-    public IEnumerator KillPlayer(string[] data, NetPeer peer)
+    public async void KillPlayer(string[] data, NetPeer peer)
     {
+        var delay = Task.Delay(5000);
         _networkManager.SendMessageToClient($"PlayerDead@{peer.Id}");
-        yield return new WaitForSeconds(5);
+        await delay;
         _networkManager.SendMessageToClient($"PlayerRespawn@{peer.Id}");
     }
     

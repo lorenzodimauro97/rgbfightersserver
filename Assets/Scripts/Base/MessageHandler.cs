@@ -1,4 +1,5 @@
-﻿using LiteNetLib;
+﻿using System.Threading.Tasks;
+using LiteNetLib;
 using LiteNetLib.Utils;
 using UnityEngine;
 
@@ -27,7 +28,7 @@ public class MessageHandler : MonoBehaviour
                 _networkManager.networkPlayer.MovePlayer(dataArray, peer);
                 break;
             case "PlayerDead":
-                StartCoroutine(_networkManager.networkPlayer.KillPlayer(dataArray, peer));
+                Task.Run(() => _networkManager.networkPlayer.KillPlayer(dataArray, peer));
                 break;
             case "ChatMessage":
                 _networkManager.SendChatMessage(data);
