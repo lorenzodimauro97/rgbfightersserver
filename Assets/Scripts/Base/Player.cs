@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
     public string Team { get; private set; }
     public string Name { get; private set; }
     public NetPlayer netPlayer;
-
+    public bool IsAlive { get; set; }
     public void Spawn(string playerName, string team, NetPeer peer, Vector3 spawnPoint, Color playerColor)
     {
         Name = playerName;
@@ -26,6 +26,7 @@ public class Player : MonoBehaviour
         Body.tag = "Player";
         Color = playerColor;
         netPlayer = gameObject.GetComponent<NetPlayer>();
+        IsAlive = true;
     }
 
     public void Dispose()

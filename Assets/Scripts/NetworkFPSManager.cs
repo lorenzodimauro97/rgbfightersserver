@@ -33,9 +33,9 @@ public class NetworkFPSManager : MonoBehaviour
 
         if (!hit.transform|| !hit.transform.CompareTag("Player")) return;
 
-        var player = hit.transform.gameObject;
+        var player = hit.transform.gameObject.GetComponent<Player>();
 
-        if (!player || player.GetComponent<Player>().Peer.Id == peer.Id) return;
+        if (!player.Body || player.Peer.Id == peer.Id || !player.IsAlive) return;
 
         var shootDistance = Vector3.Distance(player.transform.position, hitPosition);
 
@@ -45,15 +45,13 @@ public class NetworkFPSManager : MonoBehaviour
 
         else damage = float.Parse(data[7]);
         
-        Debug.Log($"Player {player.name} received {damage} damage!");
-
         if (hit.transform.tag.Contains("Head")) damage *= headMultiplier;
         else if (hit.transform.tag.Contains("Arm")) damage *= armMultiplier;
         else if (hit.transform.tag.Contains("Leg")) damage *= legMultiplier;
-
-        var damagedPlayer = _networkManager.networkPlayer.players.Find(x => x.Name == player.name);
+        
+        Debug.Log($"Player {player.name} received {damage} damage!");
 
         _networkManager.SendMessageToClient($"PlayerHit@{damage}",
-            damagedPlayer.Peer);
+            player.Peer);
     }
 }

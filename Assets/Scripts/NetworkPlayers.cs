@@ -84,10 +84,17 @@ public class NetworkPlayers : MonoBehaviour
 
     public async void KillPlayer(string[] data, NetPeer peer)
     {
+        var deadPlayer = FindPlayer(peer);
+        deadPlayer.IsAlive = false;
         var delay = Task.Delay(5000);
         _networkManager.SendMessageToClient($"PlayerDead@{peer.Id}");
         await delay;
-        _networkManager.SendMessageToClient($"PlayerRespawn@{peer.Id}");
+        deadPlayer.IsAlive = true;
+        
+        var spawnPoint =
+            _networkManager.networkMap.spawnPoints[Random.Range(0, _networkManager.networkMap.spawnPoints.Count)];
+        
+        _networkManager.SendMessageToClient($"PlayerRespawn@{peer.Id}@{spawnPoint.x}@{spawnPoint.y}@{spawnPoint.z}");
     }
     
     public Player FindPlayer(NetPeer peer)
