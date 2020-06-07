@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LiteNetLib;
@@ -77,29 +76,35 @@ public class NetworkPlayers : MonoBehaviour
 
         var movingPlayer = FindPlayer(peer);
 
-        movingPlayer?.netPlayer.MovePlayer(playerData);
+        movingPlayer?.NetPlayer.MovePlayer(playerData);
 
         SendPlayerPositionToClients(peer, playerData);
     }
 
-    public async void KillPlayer(string[] data, NetPeer peer)
+    public async void KillPlayer(string name)
     {
-        var deadPlayer = FindPlayer(peer);
-        deadPlayer.IsAlive = false;
         var delay = Task.Delay(5000);
-        _networkManager.SendMessageToClient($"PlayerDead@{peer.Id}");
+        Debug.Log($"Player {name} è Morto");
+        var deadPlayer = FindPlayer(name);
+        deadPlayer.IsAlive = false;
+        _networkManager.SendMessageToClient($"PlayerDead@{deadPlayer.Peer.Id}");
         await delay;
         deadPlayer.IsAlive = true;
-        
+        deadPlayer.Health = 100;
         var spawnPoint =
-            _networkManager.networkMap.spawnPoints[Random.Range(0, _networkManager.networkMap.spawnPoints.Count)];
-        
-        _networkManager.SendMessageToClient($"PlayerRespawn@{peer.Id}@{spawnPoint.x}@{spawnPoint.y}@{spawnPoint.z}");
+            _networkManager.networkMap.spawnPoints[
+                new System.Random().Next(0, _networkManager.networkMap.spawnPoints.Count)];
+        _networkManager.SendMessageToClient($"PlayerRespawn@{deadPlayer.Peer.Id}@{spawnPoint.x}@{spawnPoint.y}@{spawnPoint.z}");
     }
     
     public Player FindPlayer(NetPeer peer)
     {
         return players.Find(x => x.Peer == peer);
+    }
+    
+    public Player FindPlayer(string name)
+    {
+        return players.Find(x => x.Name == name);
     }
 
     public void ClearPlayers()

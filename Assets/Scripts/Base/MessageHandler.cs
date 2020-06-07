@@ -27,9 +27,6 @@ public class MessageHandler : MonoBehaviour
             case "PlayerPosition":
                 _networkManager.networkPlayer.MovePlayer(dataArray, peer);
                 break;
-            case "PlayerDead":
-                Task.Run(() => _networkManager.networkPlayer.KillPlayer(dataArray, peer));
-                break;
             case "ChatMessage":
                 _networkManager.SendChatMessage(data);
                 break;
@@ -43,7 +40,15 @@ public class MessageHandler : MonoBehaviour
     {
         writer.Reset();
         writer.Put(data);
-        peer.Send(writer, DeliveryMethod.ReliableOrdered);
+        peer.Send(writer, DeliveryMethod.ReliableUnordered);
         //Debug.Log("Messaggio inviato:" + data);
     }
+
+    public static void HandleSendingToAll(NetDataWriter writer, string data, NetManager manager)
+    {
+        writer.Reset();
+        writer.Put(data);
+        manager.SendToAll(writer, DeliveryMethod.ReliableUnordered);
+    }
+    
 }

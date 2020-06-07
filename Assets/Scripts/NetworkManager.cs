@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using UnityEngine;
@@ -136,7 +137,7 @@ public class NetworkManager : MonoBehaviour, INetEventListener
 
     public void SendMessageToClient(string message)
     {
-        foreach (var p in netManager.ConnectedPeerList) MessageHandler.HandleSendingMessage(writer, message, p);
+        MessageHandler.HandleSendingToAll(writer, message, netManager);
     }
 
     public void SendMessageToClient(string message, NetPeer peer)
