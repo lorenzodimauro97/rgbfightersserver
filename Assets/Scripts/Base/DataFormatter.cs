@@ -8,17 +8,18 @@ public class DataFormatter : MonoBehaviour
 {
     public static string[] StringToArray(string data, string separator)
     {
-        var arrayData = Regex.Split(data, separator);
-        return arrayData;
+        return Regex.Split(data, separator);
     }
 
     public static string CalculateFileHash(string filename)
     {
-        var md5 = MD5.Create();
-        var stream = File.OpenRead(filename);
-        var hash = md5.ComputeHash(stream);
-        md5.Dispose();
-        stream.Dispose();
-        return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+        using (var md5 = MD5.Create())
+        {
+            using (var stream = File.OpenRead(filename))
+            {
+                var hash = md5.ComputeHash(stream);
+                return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+            }
+        }
     }
 }

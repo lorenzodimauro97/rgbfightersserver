@@ -50,5 +50,4 @@ public class MessageHandler : MonoBehaviour
         writer.Put(data);
         manager.SendToAll(writer, DeliveryMethod.ReliableUnordered);
     }
-    
 }

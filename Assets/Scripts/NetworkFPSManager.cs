@@ -36,27 +36,32 @@ public class NetworkFPSManager : MonoBehaviour
         var hits = Physics.RaycastAll(hitPosition, hitDirection, int.Parse(data[8])).ToList();
 
         Player player = null;
+
+        NetworkEntity entity = null;
         
-        foreach (var h in hits.Where(h => h.transform.CompareTag("Player") &&
-                                          !h.transform.gameObject.GetComponent<Player>().Peer.Id.Equals(peer.Id)))
+        foreach (var h in hits)
         {
-            player = h.transform.gameObject.GetComponent<Player>();
+            if(h.transform.CompareTag("Player") && !h.transform.GetComponent<Player>().Peer.Id.Equals(peer.Id)) player = h.transform.gameObject.GetComponent<Player>();
+            if (h.transform.CompareTag("Entity")) entity = h.transform.gameObject.GetComponent<NetworkEntity>();
         }
-        
-        if (player == null || !player.IsAlive) return;
 
-        var playerPosition = player.transform.position;
+        if(entity) EntityShoot(entity, hitDirection, hitPosition);
 
-        //CalculateShootData(player, hitPosition, float.Parse(data[7]));
-
-        //new Thread(() =>CalculateShootData(player, playerPosition, hitPosition, float.Parse(data[7]))).Start();
-        
-        Task.Run(() => CalculateShootData(player, playerPosition, hitPosition, float.Parse(data[7])));
+        if (!player) return;
+        Task.Run(() => CalculateShootData(player, hitPosition, data[7]));
     }
 
-    private void CalculateShootData(Player player, Vector3 playerPosition, Vector3 hitPosition, float damageData)
+    private void EntityShoot(NetworkEntity entity, Vector3 direction, Vector3 hitPosition)
     {
-        var shootDistance = Vector3.Distance(playerPosition, hitPosition);
+        var shootDistance = Vector3.Distance(entity.transform.position, hitPosition);
+        entity.AddForce(direction, 2000 / shootDistance);
+    }
+
+    private void CalculateShootData(Player player, Vector3 hitPosition, string sDamageData)
+    {
+        var damageData = float.Parse(sDamageData);
+        
+        var shootDistance = Vector3.Distance(player.transform.position, hitPosition);
 
         float damage;
 
@@ -74,6 +79,6 @@ public class NetworkFPSManager : MonoBehaviour
             player.Health = 0;
             _networkManager.networkPlayer.KillPlayer(player.Name);
         }
-        else _networkManager.SendMessageToClient($"PlayerHit@{player.Health}", player.Peer);
+        else _networkManager.SendMessageToClient($"PlayerHit@{player.Peer.Id}@{player.Health}");
     }
 }
