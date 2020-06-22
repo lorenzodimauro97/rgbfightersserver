@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using UnityEngine;
@@ -24,15 +23,15 @@ public class NetworkManager : MonoBehaviour, INetEventListener
     public void OnConnectionRequest(ConnectionRequest request)
     {
         var key = request.Data.GetString();
-        
-        if (connectedPeers < connectedPeerLimit && 
-            key == $"rgbfighters:{Application.version}") 
+
+        if (connectedPeers < connectedPeerLimit &&
+            key == $"rgbfighters:{Application.version}")
             request.Accept();
-        
-        else if(connectedPeers >= connectedPeerLimit) 
+
+        else if (connectedPeers >= connectedPeerLimit)
             request.Reject(Encoding.ASCII.GetBytes("SServerFull"));
-        
-        else if(key != $"rgbfighters:{Application.version}")
+
+        else if (key != $"rgbfighters:{Application.version}")
             request.Reject(Encoding.ASCII.GetBytes("SServerClientMismatch"));
     }
 
@@ -116,7 +115,8 @@ public class NetworkManager : MonoBehaviour, INetEventListener
             Debug.LogError("Errore! Il server non si è avviato!");
             Application.Quit();
         }
-            Debug.Log($"Server avviato su porta {netManager.LocalPort}");
+
+        Debug.Log($"Server avviato su porta {netManager.LocalPort}");
         networkMap.StartMapManager();
     }
 

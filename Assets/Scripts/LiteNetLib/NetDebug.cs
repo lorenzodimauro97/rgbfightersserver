@@ -1,5 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
 namespace LiteNetLib
 {
@@ -12,7 +12,7 @@ namespace LiteNetLib
     }
 
     /// <summary>
-    /// Interface to implement for your own logger
+    ///     Interface to implement for your own logger
     /// </summary>
     public interface INetLogger
     {
@@ -20,13 +20,14 @@ namespace LiteNetLib
     }
 
     /// <summary>
-    /// Static class for defining your own LiteNetLib logger instead of Console.WriteLine
-    /// or Debug.Log if compiled with UNITY flag
+    ///     Static class for defining your own LiteNetLib logger instead of Console.WriteLine
+    ///     or Debug.Log if compiled with UNITY flag
     /// </summary>
     public static class NetDebug
     {
         public static INetLogger Logger = null;
         private static readonly object DebugLogLock = new object();
+
         private static void WriteLogic(NetLogLevel logLevel, string str, params object[] args)
         {
             lock (DebugLogLock)
@@ -34,7 +35,7 @@ namespace LiteNetLib
                 if (Logger == null)
                 {
 #if UNITY_4 || UNITY_5 || UNITY_5_3_OR_NEWER
-                    UnityEngine.Debug.Log(string.Format(str, args));
+                    Debug.Log(string.Format(str, args));
 #else
                     Console.WriteLine(str, args);
 #endif
@@ -58,13 +59,15 @@ namespace LiteNetLib
             WriteLogic(level, str, args);
         }
 
-        [Conditional("DEBUG_MESSAGES"), Conditional("DEBUG")]
+        [Conditional("DEBUG_MESSAGES")]
+        [Conditional("DEBUG")]
         internal static void WriteForce(string str, params object[] args)
         {
             WriteLogic(NetLogLevel.Trace, str, args);
         }
 
-        [Conditional("DEBUG_MESSAGES"), Conditional("DEBUG")]
+        [Conditional("DEBUG_MESSAGES")]
+        [Conditional("DEBUG")]
         internal static void WriteForce(NetLogLevel level, string str, params object[] args)
         {
             WriteLogic(level, str, args);

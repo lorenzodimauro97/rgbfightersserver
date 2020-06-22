@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using LiteNetLib;
+﻿using LiteNetLib;
 using LiteNetLib.Utils;
 using UnityEngine;
 
@@ -40,7 +39,7 @@ public class MessageHandler : MonoBehaviour
     {
         writer.Reset();
         writer.Put(data);
-        peer.Send(writer, DeliveryMethod.ReliableUnordered);
+        peer.Send(writer, DeliveryMethod.ReliableOrdered);
         //Debug.Log("Messaggio inviato:" + data);
     }
 
@@ -48,6 +47,6 @@ public class MessageHandler : MonoBehaviour
     {
         writer.Reset();
         writer.Put(data);
-        manager.SendToAll(writer, DeliveryMethod.ReliableUnordered);
+        manager.SendToAll(writer, DeliveryMethod.ReliableOrdered);
     }
 }

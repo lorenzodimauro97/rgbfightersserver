@@ -25,7 +25,7 @@ public class NetworkPlayers : MonoBehaviour
     {
         if (players.Find(x => x.Name.Equals(playerData[1])))
             NetworkManager.DisconnectClient("Username Already in use", peer);
-        
+
         Debug.Log($"Peer {playerData[1]} connesso!");
 
         _networkManager.networkMap.SendMatchStatus(peer);
@@ -43,7 +43,7 @@ public class NetworkPlayers : MonoBehaviour
 
         newPlayer.Spawn(playerData[1], _teamSelect ? "etero" : "rgb", peer, spawnPoint, playerColor);
         _teamSelect = !_teamSelect;
-        
+
         players.Add(newPlayer);
 
         _networkManager.SendMessageToClient(
@@ -94,14 +94,15 @@ public class NetworkPlayers : MonoBehaviour
         var spawnPoint =
             _networkManager.networkMap.spawnPoints[
                 new System.Random().Next(0, _networkManager.networkMap.spawnPoints.Count)];
-        _networkManager.SendMessageToClient($"PlayerRespawn@{deadPlayer.Peer.Id}@{spawnPoint.x}@{spawnPoint.y}@{spawnPoint.z}");
+        _networkManager.SendMessageToClient(
+            $"PlayerRespawn@{deadPlayer.Peer.Id}@{spawnPoint.x}@{spawnPoint.y}@{spawnPoint.z}");
     }
-    
+
     public Player FindPlayer(NetPeer peer)
     {
         return players.Find(x => x.Peer == peer);
     }
-    
+
     public Player FindPlayer(string name)
     {
         return players.Find(x => x.Name == name);

@@ -1,17 +1,18 @@
 ﻿using System;
+
 namespace LiteNetLib
 {
-    public class InvalidPacketException: ArgumentException
+    public class InvalidPacketException : ArgumentException
     {
         public InvalidPacketException()
         {
         }
 
-        public InvalidPacketException(string message): base(message)
+        public InvalidPacketException(string message) : base(message)
         {
         }
 
-        public InvalidPacketException(string message, Exception innerException): base(message, innerException)
+        public InvalidPacketException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }

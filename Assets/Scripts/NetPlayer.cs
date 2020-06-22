@@ -27,7 +27,7 @@ public class NetPlayer : MonoBehaviour
             float.Parse(dataArray[8]),
             float.Parse(dataArray[9]));
 
-        transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime / Time.fixedDeltaTime);
+        transform.position = newPosition;
         transform.eulerAngles = newEulerAngles;
         head.transform.eulerAngles = headEulerAngles;
 

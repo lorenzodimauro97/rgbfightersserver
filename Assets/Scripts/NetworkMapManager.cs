@@ -10,9 +10,9 @@ public class NetworkMapManager : MonoBehaviour
 
     private string _mapHash;
 
-    private string _mapPath;
-
     private string _mapName;
+
+    private string _mapPath;
 
     public int
         gameplayState; //0 significa in attesa che siano tutti pronti (1 minuto), 1 che si sta giocando (10 minuti), 2 che è finito il gioco (30 secondi)

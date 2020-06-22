@@ -1,7 +1,6 @@
 ﻿using System;
 using LiteNetLib;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 [Serializable]
 public class Player : MonoBehaviour
@@ -14,6 +13,7 @@ public class Player : MonoBehaviour
     public string Name { get; private set; }
     public NetPlayer NetPlayer { get; private set; }
     public bool IsAlive { get; set; }
+
     public void Spawn(string playerName, string team, NetPeer peer, Vector3 spawnPoint, Color playerColor)
     {
         Name = playerName;

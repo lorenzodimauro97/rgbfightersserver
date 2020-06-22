@@ -4,12 +4,6 @@ using LiteNetLib.Utils;
 
 namespace LiteNetLib
 {
-    public enum ConnectionRequestType
-    {
-        Incoming,
-        PeerToPeer
-    }
-
     internal enum ConnectionRequestResult
     {
         None,
@@ -21,15 +15,28 @@ namespace LiteNetLib
     public class ConnectionRequest
     {
         private readonly NetManager _listener;
-        private int _used;
 
         public readonly NetDataReader Data;
-        public ConnectionRequestType Type { get; private set; }
+        public readonly IPEndPoint RemoteEndPoint;
+        private int _used;
+        internal byte ConnectionNumber;
+        internal long ConnectionTime;
+
+        internal ConnectionRequest(
+            long connectionId,
+            byte connectionNumber,
+            NetDataReader netDataReader,
+            IPEndPoint endPoint,
+            NetManager listener)
+        {
+            ConnectionTime = connectionId;
+            ConnectionNumber = connectionNumber;
+            RemoteEndPoint = endPoint;
+            Data = netDataReader;
+            _listener = listener;
+        }
 
         internal ConnectionRequestResult Result { get; private set; }
-        internal long ConnectionTime;
-        internal byte ConnectionNumber;
-        public readonly IPEndPoint RemoteEndPoint;
 
         private bool TryActivate()
         {
@@ -45,22 +52,6 @@ namespace LiteNetLib
             }
         }
 
-        internal ConnectionRequest(
-            long connectionId,
-            byte connectionNumber,
-            ConnectionRequestType type,
-            NetDataReader netDataReader,
-            IPEndPoint endPoint,
-            NetManager listener)
-        {
-            ConnectionTime = connectionId;
-            ConnectionNumber = connectionNumber;
-            Type = type;
-            RemoteEndPoint = endPoint;
-            Data = netDataReader;
-            _listener = listener;
-        }
-
         public NetPeer AcceptIfKey(string key)
         {
             if (!TryActivate())
@@ -74,6 +65,7 @@ namespace LiteNetLib
             {
                 NetDebug.WriteError("[AC] Invalid incoming data");
             }
+
             if (Result == ConnectionRequestResult.Accept)
                 return _listener.OnConnectionSolved(this, null, 0, 0);
 
@@ -83,7 +75,7 @@ namespace LiteNetLib
         }
 
         /// <summary>
-        /// Accept connection and get new NetPeer as result
+        ///     Accept connection and get new NetPeer as result
         /// </summary>
         /// <returns>Connected NetPeer</returns>
         public NetPeer Accept()
@@ -93,7 +85,7 @@ namespace LiteNetLib
             Result = ConnectionRequestResult.Accept;
             return _listener.OnConnectionSolved(this, null, 0, 0);
         }
-        
+
         public void Reject(byte[] rejectData, int start, int length, bool force)
         {
             if (!TryActivate())

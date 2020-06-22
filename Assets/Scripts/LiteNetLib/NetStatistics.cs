@@ -2,17 +2,15 @@
 {
     public sealed class NetStatistics
     {
-        public ulong PacketsSent;
-        public ulong PacketsReceived;
-        public ulong BytesSent;
         public ulong BytesReceived;
+        public ulong BytesSent;
         public ulong PacketLoss;
-        public ulong PacketLossPercent
-        {
-            get { return PacketsSent == 0 ? 0 : PacketLoss * 100 / PacketsSent; }
-        }
+        public ulong PacketsReceived;
+        public ulong PacketsSent;
 
         public ulong SequencedPacketLoss;
+
+        public ulong PacketLossPercent => PacketsSent == 0 ? 0 : PacketLoss * 100 / PacketsSent;
 
         public void Reset()
         {
