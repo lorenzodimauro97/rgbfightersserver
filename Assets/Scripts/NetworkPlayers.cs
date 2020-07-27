@@ -59,7 +59,7 @@ public class NetworkPlayers : MonoBehaviour
         playerInformation.AddRange(from p in players
             where p.Body
             select
-                $"{p.Name}&{p.Peer.Id}&{p.Team}&{p.Color.r}&{p.Color.g}&{p.Color.b}&{p.Body.transform.position.x}&{p.Body.transform.position.y}&{p.Body.transform.position.z}");
+                $"{p.Name}&{p.GetPeerId()}&{p.Team}&{p.Color.r}&{p.Color.g}&{p.Color.b}&{p.Body.transform.position.x}&{p.Body.transform.position.y}&{p.Body.transform.position.z}");
 
         if (playerInformation.Count == 0) return;
 
@@ -76,6 +76,8 @@ public class NetworkPlayers : MonoBehaviour
 
         var movingPlayer = FindPlayer(peer);
 
+        if (!movingPlayer.IsAlive) return;
+        
         movingPlayer?.NetPlayer.MovePlayer(playerData);
 
         SendPlayerPositionToClients(peer, playerData);
@@ -84,23 +86,30 @@ public class NetworkPlayers : MonoBehaviour
     public async void KillPlayer(string name)
     {
         var delay = Task.Delay(5000);
-        Debug.Log($"Player {name} è Morto");
         var deadPlayer = FindPlayer(name);
-        deadPlayer.IsAlive = false;
-        _networkManager.SendMessageToClient($"PlayerDead@{deadPlayer.Peer.Id}");
+
+        if (!deadPlayer.IsAlive) return;
+        
+        deadPlayer.SetAlive(false);
+        Debug.Log($"Player {name} è Morto");
+
+        _networkManager.SendMessageToClient($"PlayerDead@{deadPlayer.GetPeerId()}");
+        
         await delay;
-        deadPlayer.IsAlive = true;
-        deadPlayer.Health = 100;
+        
+        deadPlayer.SetAlive(true);
+        
         var spawnPoint =
             _networkManager.networkMap.spawnPoints[
                 new System.Random().Next(0, _networkManager.networkMap.spawnPoints.Count)];
+        
         _networkManager.SendMessageToClient(
-            $"PlayerRespawn@{deadPlayer.Peer.Id}@{spawnPoint.x}@{spawnPoint.y}@{spawnPoint.z}");
+            $"PlayerRespawn@{deadPlayer.GetPeerId()}@{spawnPoint.x}@{spawnPoint.y}@{spawnPoint.z}");
     }
 
     public Player FindPlayer(NetPeer peer)
     {
-        return players.Find(x => x.Peer == peer);
+        return players.Find(x => x.GetPeer() == peer);
     }
 
     public Player FindPlayer(string name)
@@ -111,6 +120,14 @@ public class NetworkPlayers : MonoBehaviour
     public void ClearPlayers()
     {
         players.Clear();
+    }
+
+    public void ChangePlayerGunIndex(string index, NetPeer peer)
+    {
+        var player = FindPlayer(peer);
+        player.SetGunIndex(index);
+        _networkManager.SendMessageToClient($"GunChange@{player.GetPeerId()}@{index}");
+        
     }
 
     private void SendPlayerPositionToClients(NetPeer peer, IReadOnlyList<string> playerData)

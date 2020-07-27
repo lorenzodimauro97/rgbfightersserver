@@ -27,6 +27,11 @@ public class NetPlayer : MonoBehaviour
             float.Parse(dataArray[8]),
             float.Parse(dataArray[9]));
 
+        if (newPosition.y < -1000)
+        {
+            GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkPlayers>().KillPlayer(GetComponent<Player>().name);
+        }
+
         transform.position = newPosition;
         transform.eulerAngles = newEulerAngles;
         head.transform.eulerAngles = headEulerAngles;

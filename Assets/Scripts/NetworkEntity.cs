@@ -3,9 +3,13 @@ using UnityEngine;
 
 public class NetworkEntity : MonoBehaviour
 {
-    private NetworkEntityManager _networkEntityManager;
+    public enum Entity{ Ammo, Gun, Movable }
+
+    public Entity entityType;
+    public string gunId;
     public string entityId;
-    public string entityType;
+    
+    private NetworkEntityManager _networkEntityManager;
     public Vector3 euler;
     public Vector3 position;
 
@@ -14,7 +18,7 @@ public class NetworkEntity : MonoBehaviour
         _networkEntityManager = GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkEntityManager>();
         _networkEntityManager.AddEntity(this);
 
-        if (entityType != "Ammo" && entityType != "Gun")
+        if (entityType != Entity.Ammo && entityType != Entity.Gun)
             _networkEntityManager.movableEntities.Add(GetComponent<NetworkEntity>());
     }
 
@@ -38,28 +42,45 @@ public class NetworkEntity : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        string message;
-
         switch (entityType)
         {
-            case "Ammo":
+            case Entity.Ammo:
                 AmmoEntityTrigger(other);
                 break;
-            case "Gun":
+            case Entity.Gun: GunEntityTrigger(other);
                 break;
-            case "":
+            case Entity.Movable:
                 CheckTriggerTagForForce(other);
                 break;
         }
+    }
+
+    private void GunEntityTrigger(Collider collider)
+    {
+        if (!collider.CompareTag("Player")) return;
+
+        var peer = collider.gameObject.GetComponent<Player>().GetPeer();
+
+        var message = $"GunAdd@{gunId}";
+
+        SendNewEntityData(message, peer);
+
+        Invoke(nameof(EnableEntity), Random.Range(10, 60));
+
+        DisableEntity();
     }
 
     private void AmmoEntityTrigger(Collider collider)
     {
         if (!collider.CompareTag("Player")) return;
 
-        var peer = collider.gameObject.GetComponent<Player>().Peer;
+        var player = collider.gameObject.GetComponent<Player>();
 
-        var message = "AmmoAdd@10";
+        var peer = player.GetPeer();
+        
+        var amount = _networkEntityManager._networkManager.networkFps.gunTypes.Find(x => x.Id == player.GetGunIndex()).ReloadAmount;
+
+        var message = $"AmmoAdd@{amount}";
 
         SendNewEntityData(message, peer);
 
@@ -86,7 +107,7 @@ public class NetworkEntity : MonoBehaviour
         SendNewEntityData(message);
     }
 
-    public void CheckTriggerTagForForce(Collider other)
+    private void CheckTriggerTagForForce(Collider other)
     {
         if (!other.transform.CompareTag("Player")) return;
         var force = transform.position - other.transform.position;

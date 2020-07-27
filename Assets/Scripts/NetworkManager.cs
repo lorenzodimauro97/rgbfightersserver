@@ -74,7 +74,7 @@ public class NetworkManager : MonoBehaviour, INetEventListener
 
         SendPeerDisconnectionToClients(disconnectedPlayer);
         disconnectedPlayer.Dispose();
-        networkPlayer.players.RemoveAll(x => x.Peer == peer);
+        networkPlayer.players.RemoveAll(x => x.GetPeer() == peer);
     }
 
     private void Start()
@@ -148,7 +148,7 @@ public class NetworkManager : MonoBehaviour, INetEventListener
 
     private void SendPeerDisconnectionToClients(Player player)
     {
-        SendMessageToClient($"PlayerDisconnected@{player.Peer.Id}");
+        SendMessageToClient($"PlayerDisconnected@{player.GetPeerId()}");
 
         SendChatMessage($"ChatMessage@Server:{player.Name} Si è disconnesso!");
     }

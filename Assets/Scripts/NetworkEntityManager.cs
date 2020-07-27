@@ -7,7 +7,7 @@ using UnityEngine;
 public class NetworkEntityManager : MonoBehaviour
 {
     private bool _isQuitting;
-    private NetworkManager _networkManager;
+    public NetworkManager _networkManager;
 
     public List<NetworkEntity> entities;
 
@@ -20,7 +20,7 @@ public class NetworkEntityManager : MonoBehaviour
         new Task(() => SendContinuousPosition(3000), TaskCreationOptions.LongRunning).Start();
     }
 
-    public async void SendContinuousPosition(int delay)
+    private async void SendContinuousPosition(int delay)
     {
         while (!_isQuitting)
         {
@@ -57,5 +57,11 @@ public class NetworkEntityManager : MonoBehaviour
     private void OnApplicationQuit()
     {
         _isQuitting = true;
+    }
+
+    public void Clear()
+    {
+        entities.Clear();
+        movableEntities.Clear();
     }
 }

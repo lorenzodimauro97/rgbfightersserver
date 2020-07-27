@@ -62,7 +62,7 @@ public class NetworkMapManager : MonoBehaviour
                     break;
 
                 case 1:
-                    yield return new WaitForSeconds(1800);
+                    yield return new WaitForSeconds(600);
                     gameplayState = 2;
                     break;
 
