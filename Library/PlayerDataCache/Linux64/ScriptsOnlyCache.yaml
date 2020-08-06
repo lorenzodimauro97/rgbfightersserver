@@ -61,13 +61,13 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 13218}
     - Class: 114
-      Script: {instanceID: 13578}
+      Script: {instanceID: 13580}
     - Class: 114
-      Script: {instanceID: 14058}
+      Script: {instanceID: 14060}
     - Class: 114
-      Script: {instanceID: 14338}
+      Script: {instanceID: 14340}
     - Class: 114
-      Script: {instanceID: 14506}
+      Script: {instanceID: 14508}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 136
@@ -267,7 +267,7 @@ ScriptsOnlyBuild:
     className: AnimationPlayableAsset
   - hash:
       serializedVersion: 2
-      Hash: 9e6851e841e3c2ab09a48776404663e2
+      Hash: 0adc5b2aa4ee76691eb28088586d5bdb
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: NetworkManager
@@ -337,12 +337,6 @@ ScriptsOnlyBuild:
     assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: Selectable
-  - hash:
-      serializedVersion: 2
-      Hash: b3ab2106268377ffe25dd18ac23dca28
-    assemblyName: Unity.TextMeshPro.dll
-    namespaceName: TMPro
-    className: TMP_Asset
   - hash:
       serializedVersion: 2
       Hash: 040dd48e3a027d5424519a5fa2009df4
@@ -447,7 +441,7 @@ ScriptsOnlyBuild:
     className: TMP_FontAsset
   - hash:
       serializedVersion: 2
-      Hash: 0b72c8cb307a829156936043ce529602
+      Hash: 87ad3705a58f19c47136728d4a6e9c47
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
     className: TMP_Settings
@@ -483,7 +477,7 @@ ScriptsOnlyBuild:
     className: CameraOffset
   - hash:
       serializedVersion: 2
-      Hash: e4aac510b698bae77a5dbde189fe88e5
+      Hash: 760787567e1b60d64a3e421ab83ee14a
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
     className: TextMeshProUGUI
@@ -549,7 +543,7 @@ ScriptsOnlyBuild:
     className: TMP_StyleSheet
   - hash:
       serializedVersion: 2
-      Hash: a01d7cd1372d550f912f7121e6ebe739
+      Hash: a2612813f45d0ced02c3e4bc9dbea8b4
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
     className: TextMeshPro
@@ -591,7 +585,7 @@ ScriptsOnlyBuild:
     className: EventTrigger
   - hash:
       serializedVersion: 2
-      Hash: 8649814970b42d345b89944b862453cc
+      Hash: 5dea360fb0b147724ac344e6f399c2f3
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
     className: TMP_SubMesh
