@@ -37,7 +37,9 @@ public class NetworkFPSManager : MonoBehaviour
 
         var shootingGun = gunTypes.Find(x => x.Id == data[7]);
 
-        var hits = new RaycastHit[6];
+        var shootingPlayer = _networkManager.networkPlayer.FindPlayer(peer);
+
+        var hits = new RaycastHit[8];
 
         Physics.RaycastNonAlloc(hitPosition, hitDirection, hits, shootingGun.Distance);
 
@@ -56,7 +58,7 @@ public class NetworkFPSManager : MonoBehaviour
 
         if (entity) EntityShoot(entity, hitDirection, hitPosition);
 
-        if (!player) return;
+        if (!player || player.Team == shootingPlayer.Team) return;
 
         var playerPosition =
             player.transform

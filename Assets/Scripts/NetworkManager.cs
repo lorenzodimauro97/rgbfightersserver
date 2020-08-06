@@ -16,6 +16,7 @@ public class NetworkManager : MonoBehaviour, INetEventListener
     public NetManager netManager;
     public NetworkFPSManager networkFps;
     public NetworkMapManager networkMap;
+    public NetworkEntityManager networkEntity;
 
     public NetworkPlayers networkPlayer;
     public NetDataWriter writer;
@@ -90,6 +91,7 @@ public class NetworkManager : MonoBehaviour, INetEventListener
         networkPlayer = GetComponent<NetworkPlayers>();
         networkMap = GetComponent<NetworkMapManager>();
         networkFps = GetComponent<NetworkFPSManager>();
+        networkEntity = GetComponent<NetworkEntityManager>();
         DontDestroyOnLoad(this);
         CreateServer();
     }

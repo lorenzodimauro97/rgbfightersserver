@@ -49,7 +49,10 @@ public class NetworkPlayers : MonoBehaviour
         _networkManager.SendMessageToClient(
             $"PlayerInformation@{peer.Id}@{newPlayer.Team}@{playerColor.r}@{playerColor.g}@{playerColor.b}@{spawnPoint.x}@{spawnPoint.y}@{spawnPoint.z}",
             peer);
+        
         SendPlayerListToClients();
+        
+        _networkManager.networkEntity.SendClientEntitiesStatus(peer);
     }
 
     private void SendPlayerListToClients()

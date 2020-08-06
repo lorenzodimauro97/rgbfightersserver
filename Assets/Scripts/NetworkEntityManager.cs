@@ -38,6 +38,12 @@ public class NetworkEntityManager : MonoBehaviour
         }
     }
 
+    public void SendClientEntitiesStatus(NetPeer peer)
+    {
+        foreach (var message in entities.Select(e => $"EntitySetActive@{e.entityId}@{e.gameObject.activeSelf}"))
+            SendMessageToClient(message, peer);
+    }
+
     public void AddEntity(NetworkEntity entity)
     {
         entities.Add(entity);
