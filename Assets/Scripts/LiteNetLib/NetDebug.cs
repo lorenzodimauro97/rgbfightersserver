@@ -1,8 +1,23 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Debug = UnityEngine.Debug;
 
 namespace LiteNetLib
 {
+    public class InvalidPacketException : ArgumentException
+    {
+        public InvalidPacketException(string message) : base(message)
+        {
+        }
+    }
+
+    public class TooBigPacketException : InvalidPacketException
+    {
+        public TooBigPacketException(string message) : base(message)
+        {
+        }
+    }
+
     public enum NetLogLevel
     {
         Warning,

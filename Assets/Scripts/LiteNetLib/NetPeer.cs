@@ -239,10 +239,7 @@ namespace LiteNetLib
 
         private void SetMtu(int mtuIdx)
         {
-            var extraLayerSpace = NetManager._extraPacketLayer != null
-                ? NetManager._extraPacketLayer.ExtraPacketSizeForLayer
-                : 0;
-            Mtu = NetConstants.PossibleMtu[mtuIdx] - extraLayerSpace;
+            Mtu = NetConstants.PossibleMtu[mtuIdx] - NetManager.ExtraPacketSizeForLayer;
         }
 
         /// <summary>

@@ -94,7 +94,7 @@ namespace LiteNetLib
     {
         private readonly List<NetPeer> _connectedPeerListCache;
         private readonly IDeliveryEventListener _deliveryEventListener;
-        internal readonly PacketLayerBase _extraPacketLayer;
+        private readonly PacketLayerBase _extraPacketLayer;
         private readonly INetEventListener _netEventListener;
         private readonly Stack<NetEvent> _netEventsPool;
 
@@ -295,6 +295,8 @@ namespace LiteNetLib
         ///     Returns connected peers count
         /// </summary>
         public int ConnectedPeersCount => _connectedPeersCount;
+
+        public int ExtraPacketSizeForLayer => _extraPacketLayer != null ? _extraPacketLayer.ExtraPacketSizeForLayer : 0;
 
         IEnumerator<NetPeer> IEnumerable<NetPeer>.GetEnumerator()
         {
@@ -1295,15 +1297,13 @@ namespace LiteNetLib
         {
             if (UnsyncedEvents)
                 return;
-            while (true)
+            var eventsCount = _netEventsQueue.Count;
+            for (var i = 0; i < eventsCount; i++)
             {
                 NetEvent evt;
                 lock (_netEventsQueue)
                 {
-                    if (_netEventsQueue.Count > 0)
-                        evt = _netEventsQueue.Dequeue();
-                    else
-                        return;
+                    evt = _netEventsQueue.Dequeue();
                 }
 
                 ProcessEvent(evt);

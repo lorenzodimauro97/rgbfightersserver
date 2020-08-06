@@ -12,14 +12,42 @@ public class NetworkManager : MonoBehaviour, INetEventListener
     public int connectedPeerLimit;
     public int connectedPeers;
     public MessageHandler messageHandler;
-
-    public NetManager netManager;
     public NetworkFPSManager networkFps;
     public NetworkMapManager networkMap;
     public NetworkEntityManager networkEntity;
 
     public NetworkPlayers networkPlayer;
+
+    public NetManager netManager;
     public NetDataWriter writer;
+
+    private void Start()
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("it");
+        if (GameObject.FindGameObjectsWithTag("NetworkManager").Length > 1)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        messageHandler = GetComponent<MessageHandler>();
+        networkPlayer = GetComponent<NetworkPlayers>();
+        networkMap = GetComponent<NetworkMapManager>();
+        networkFps = GetComponent<NetworkFPSManager>();
+        networkEntity = GetComponent<NetworkEntityManager>();
+        DontDestroyOnLoad(this);
+        CreateServer();
+    }
+
+    private void Update()
+    {
+        if (netManager.IsRunning) netManager.PollEvents();
+    }
+
+    private void OnApplicationQuit()
+    {
+        netManager.Stop();
+    }
 
     public void OnConnectionRequest(ConnectionRequest request)
     {
@@ -78,24 +106,6 @@ public class NetworkManager : MonoBehaviour, INetEventListener
         networkPlayer.players.RemoveAll(x => x.GetPeer() == peer);
     }
 
-    private void Start()
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("it");
-        if (GameObject.FindGameObjectsWithTag("NetworkManager").Length > 1)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        messageHandler = GetComponent<MessageHandler>();
-        networkPlayer = GetComponent<NetworkPlayers>();
-        networkMap = GetComponent<NetworkMapManager>();
-        networkFps = GetComponent<NetworkFPSManager>();
-        networkEntity = GetComponent<NetworkEntityManager>();
-        DontDestroyOnLoad(this);
-        CreateServer();
-    }
-
     private bool SetupNetManager()
     {
         writer = new NetDataWriter();
@@ -127,11 +137,6 @@ public class NetworkManager : MonoBehaviour, INetEventListener
         peer.Disconnect();
     }
 
-    private void Update()
-    {
-        if (netManager.IsRunning) netManager.PollEvents();
-    }
-
     public void SendChatMessage(string message)
     {
         SendMessageToClient(message);
@@ -153,10 +158,5 @@ public class NetworkManager : MonoBehaviour, INetEventListener
         SendMessageToClient($"PlayerDisconnected@{player.GetPeerId()}");
 
         SendChatMessage($"ChatMessage@Server:{player.Name} Si è disconnesso!");
-    }
-
-    private void OnApplicationQuit()
-    {
-        netManager.Stop();
     }
 }

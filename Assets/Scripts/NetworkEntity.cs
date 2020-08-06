@@ -3,18 +3,27 @@ using UnityEngine;
 
 public class NetworkEntity : MonoBehaviour
 {
-    public enum Entity{ Ammo, Gun, Movable }
+    public enum Entity
+    {
+        Ammo,
+        Gun,
+        Movable
+    }
 
     public Entity entityType;
     public string gunId;
     public string entityId;
-    
-    private NetworkEntityManager _networkEntityManager;
     public Vector3 euler;
     public Vector3 position;
 
+    private Rigidbody _rigidbody;
+
+    private NetworkEntityManager _networkEntityManager;
+
     private void Start()
     {
+        _rigidbody = GetComponent<Rigidbody>();
+        
         _networkEntityManager = GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkEntityManager>();
         _networkEntityManager.AddEntity(this);
 
@@ -25,6 +34,8 @@ public class NetworkEntity : MonoBehaviour
     private void FixedUpdate()
     {
         if (position == transform.position || euler == transform.eulerAngles) return;
+
+        CheckIfOutOfBounds();
 
         position = transform.position;
         euler = transform.eulerAngles;
@@ -40,6 +51,26 @@ public class NetworkEntity : MonoBehaviour
         SendNewEntityData(message);
     }
 
+    private void CheckIfOutOfBounds()
+    {
+        if (!(transform.position.y < -1000)) return;
+        
+        _rigidbody.velocity = Vector3.zero;
+            
+        var spawnPoint =
+            _networkEntityManager._networkManager.networkMap.spawnPoints[
+                new System.Random().Next(0,_networkEntityManager._networkManager.networkMap.spawnPoints.Count)];
+            
+        transform.position = spawnPoint;
+    }
+    
+    public void OnCollisionStay(Collision other)
+    {
+        if (!other.transform.CompareTag("Player")) return;
+        var force = transform.position - other.transform.position;
+        AddForce(force);
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         switch (entityType)
@@ -47,7 +78,8 @@ public class NetworkEntity : MonoBehaviour
             case Entity.Ammo:
                 AmmoEntityTrigger(other);
                 break;
-            case Entity.Gun: GunEntityTrigger(other);
+            case Entity.Gun:
+                GunEntityTrigger(other);
                 break;
             case Entity.Movable:
                 CheckTriggerTagForForce(other);
@@ -77,8 +109,9 @@ public class NetworkEntity : MonoBehaviour
         var player = collider.gameObject.GetComponent<Player>();
 
         var peer = player.GetPeer();
-        
-        var amount = _networkEntityManager._networkManager.networkFps.gunTypes.Find(x => x.Id == player.GetGunIndex()).ReloadAmount;
+
+        var amount = _networkEntityManager._networkManager.networkFps.gunTypes.Find(x => x.Id == player.GetGunIndex())
+            .ReloadAmount;
 
         var message = $"AmmoAdd@{amount}";
 
@@ -108,13 +141,6 @@ public class NetworkEntity : MonoBehaviour
     }
 
     private void CheckTriggerTagForForce(Collider other)
-    {
-        if (!other.transform.CompareTag("Player")) return;
-        var force = transform.position - other.transform.position;
-        AddForce(force);
-    }
-
-    public void OnCollisionStay(Collision other)
     {
         if (!other.transform.CompareTag("Player")) return;
         var force = transform.position - other.transform.position;

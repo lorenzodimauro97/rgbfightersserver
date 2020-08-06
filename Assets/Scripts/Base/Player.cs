@@ -6,14 +6,14 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public float Health { get; set; }
-    private NetPeer Peer {get; set; }
+    private NetPeer Peer { get; set; }
     public GameObject Body { get; set; }
     public Color Color { get; private set; }
     public string Team { get; private set; }
     public string Name { get; private set; }
     public NetPlayer NetPlayer { get; private set; }
     public bool IsAlive { get; private set; }
-    public string GunIndex { get; private set;}
+    public string GunIndex { get; private set; }
 
     public void Spawn(string playerName, string team, NetPeer peer, Vector3 spawnPoint, Color playerColor)
     {

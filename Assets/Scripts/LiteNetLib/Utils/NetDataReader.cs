@@ -14,6 +14,11 @@ namespace LiteNetLib.Utils
         {
         }
 
+        public NetDataReader(NetDataWriter writer)
+        {
+            SetSource(writer);
+        }
+
         public NetDataReader(byte[] source)
         {
             SetSource(source);
@@ -207,11 +212,7 @@ namespace LiteNetLib.Utils
             var size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
             var arr = new string[size];
-            for (var i = 0; i < size; i++)
-            {
-                arr[i] = GetString();
-            }
-
+            for (var i = 0; i < size; i++) arr[i] = GetString();
             return arr;
         }
 
@@ -220,11 +221,7 @@ namespace LiteNetLib.Utils
             var size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
             var arr = new string[size];
-            for (var i = 0; i < size; i++)
-            {
-                arr[i] = GetString(maxStringLength);
-            }
-
+            for (var i = 0; i < size; i++) arr[i] = GetString(maxStringLength);
             return arr;
         }
 
@@ -301,16 +298,10 @@ namespace LiteNetLib.Utils
         public string GetString(int maxLength)
         {
             var bytesCount = GetInt();
-            if (bytesCount <= 0 || bytesCount > maxLength * 2)
-            {
-                return string.Empty;
-            }
+            if (bytesCount <= 0 || bytesCount > maxLength * 2) return string.Empty;
 
             var charCount = Encoding.UTF8.GetCharCount(_data, _position, bytesCount);
-            if (charCount > maxLength)
-            {
-                return string.Empty;
-            }
+            if (charCount > maxLength) return string.Empty;
 
             var result = Encoding.UTF8.GetString(_data, _position, bytesCount);
             _position += bytesCount;
@@ -320,10 +311,7 @@ namespace LiteNetLib.Utils
         public string GetString()
         {
             var bytesCount = GetInt();
-            if (bytesCount <= 0)
-            {
-                return string.Empty;
-            }
+            if (bytesCount <= 0) return string.Empty;
 
             var result = Encoding.UTF8.GetString(_data, _position, bytesCount);
             _position += bytesCount;
@@ -449,16 +437,10 @@ namespace LiteNetLib.Utils
         public string PeekString(int maxLength)
         {
             var bytesCount = BitConverter.ToInt32(_data, _position);
-            if (bytesCount <= 0 || bytesCount > maxLength * 2)
-            {
-                return string.Empty;
-            }
+            if (bytesCount <= 0 || bytesCount > maxLength * 2) return string.Empty;
 
             var charCount = Encoding.UTF8.GetCharCount(_data, _position + 4, bytesCount);
-            if (charCount > maxLength)
-            {
-                return string.Empty;
-            }
+            if (charCount > maxLength) return string.Empty;
 
             var result = Encoding.UTF8.GetString(_data, _position + 4, bytesCount);
             return result;
@@ -467,10 +449,7 @@ namespace LiteNetLib.Utils
         public string PeekString()
         {
             var bytesCount = BitConverter.ToInt32(_data, _position);
-            if (bytesCount <= 0)
-            {
-                return string.Empty;
-            }
+            if (bytesCount <= 0) return string.Empty;
 
             var result = Encoding.UTF8.GetString(_data, _position + 4, bytesCount);
             return result;
@@ -651,13 +630,11 @@ namespace LiteNetLib.Utils
 
             result = new string[size];
             for (var i = 0; i < size; i++)
-            {
                 if (!TryGetString(out result[i]))
                 {
                     result = null;
                     return false;
                 }
-            }
 
             return true;
         }

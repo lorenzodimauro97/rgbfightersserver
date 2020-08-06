@@ -6,12 +6,12 @@ using UnityEngine;
 
 public class NetworkPlayers : MonoBehaviour
 {
-    private NetworkManager _networkManager;
-
-    private bool _teamSelect;
     public GameObject playerObject;
 
     public List<Player> players;
+    private NetworkManager _networkManager;
+
+    private bool _teamSelect;
 
 
     private void Start()
@@ -49,9 +49,9 @@ public class NetworkPlayers : MonoBehaviour
         _networkManager.SendMessageToClient(
             $"PlayerInformation@{peer.Id}@{newPlayer.Team}@{playerColor.r}@{playerColor.g}@{playerColor.b}@{spawnPoint.x}@{spawnPoint.y}@{spawnPoint.z}",
             peer);
-        
+
         SendPlayerListToClients();
-        
+
         _networkManager.networkEntity.SendClientEntitiesStatus(peer);
     }
 
@@ -80,7 +80,7 @@ public class NetworkPlayers : MonoBehaviour
         var movingPlayer = FindPlayer(peer);
 
         if (!movingPlayer.IsAlive) return;
-        
+
         movingPlayer?.NetPlayer.MovePlayer(playerData);
 
         SendPlayerPositionToClients(peer, playerData);
@@ -92,20 +92,20 @@ public class NetworkPlayers : MonoBehaviour
         var deadPlayer = FindPlayer(name);
 
         if (!deadPlayer.IsAlive) return;
-        
+
         deadPlayer.SetAlive(false);
         Debug.Log($"Player {name} è Morto");
 
         _networkManager.SendMessageToClient($"PlayerDead@{deadPlayer.GetPeerId()}");
-        
+
         await delay;
-        
+
         deadPlayer.SetAlive(true);
-        
+
         var spawnPoint =
             _networkManager.networkMap.spawnPoints[
                 new System.Random().Next(0, _networkManager.networkMap.spawnPoints.Count)];
-        
+
         _networkManager.SendMessageToClient(
             $"PlayerRespawn@{deadPlayer.GetPeerId()}@{spawnPoint.x}@{spawnPoint.y}@{spawnPoint.z}");
     }
@@ -130,7 +130,6 @@ public class NetworkPlayers : MonoBehaviour
         var player = FindPlayer(peer);
         player.SetGunIndex(index);
         _networkManager.SendMessageToClient($"GunChange@{player.GetPeerId()}@{index}");
-        
     }
 
     private void SendPlayerPositionToClients(NetPeer peer, IReadOnlyList<string> playerData)

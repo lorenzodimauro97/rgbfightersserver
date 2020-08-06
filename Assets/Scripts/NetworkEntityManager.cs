@@ -6,18 +6,23 @@ using UnityEngine;
 
 public class NetworkEntityManager : MonoBehaviour
 {
-    private bool _isQuitting;
     public NetworkManager _networkManager;
 
     public List<NetworkEntity> entities;
 
     public List<NetworkEntity> movableEntities;
+    private bool _isQuitting;
 
     private void Start()
     {
         _networkManager = GetComponent<NetworkManager>();
         entities = new List<NetworkEntity>();
         new Task(() => SendContinuousPosition(3000), TaskCreationOptions.LongRunning).Start();
+    }
+
+    private void OnApplicationQuit()
+    {
+        _isQuitting = true;
     }
 
     private async void SendContinuousPosition(int delay)
@@ -58,11 +63,6 @@ public class NetworkEntityManager : MonoBehaviour
     public void SendMessageToClient(string message)
     {
         _networkManager.SendMessageToClient(message);
-    }
-
-    private void OnApplicationQuit()
-    {
-        _isQuitting = true;
     }
 
     public void Clear()

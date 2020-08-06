@@ -10,13 +10,13 @@ public class NetworkFPSManager : MonoBehaviour
     private const float headMultiplier = 5;
     private const float legMultiplier = 1.1f;
 
-    private NetworkManager _networkManager;
-
-    public List<Gun> gunTypes = new List<Gun>()
+    public List<Gun> gunTypes = new List<Gun>
     {
-        new Gun(20, 0.75f, "0", 200, 10),
-        new Gun(70, 2.0f, "1", 50, 3)
+        new Gun(20, 0.75f, "0", 300, 10),
+        new Gun(70, 2.0f, "1", 70, 3)
     };
+
+    private NetworkManager _networkManager;
 
     private void Start()
     {

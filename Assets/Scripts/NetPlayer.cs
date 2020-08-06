@@ -4,9 +4,9 @@ public class NetPlayer : MonoBehaviour
 {
     private static readonly int LegType = Animator.StringToHash("LegType");
     private static readonly int ArmType = Animator.StringToHash("ArmType");
-    private Animator _animator;
 
     public GameObject head;
+    private Animator _animator;
 
     private void Start()
     {
@@ -28,9 +28,8 @@ public class NetPlayer : MonoBehaviour
             float.Parse(dataArray[9]));
 
         if (newPosition.y < -1000)
-        {
-            GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkPlayers>().KillPlayer(GetComponent<Player>().name);
-        }
+            GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkPlayers>()
+                .KillPlayer(GetComponent<Player>().name);
 
         transform.position = newPosition;
         transform.eulerAngles = newEulerAngles;

@@ -6,14 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class NetworkMapManager : MonoBehaviour
 {
-    private AssetBundle _map;
-
-    private string _mapHash;
-
-    private string _mapName;
-
-    private string _mapPath;
-
     public int
         gameplayState; //0 significa in attesa che siano tutti pronti (1 minuto), 1 che si sta giocando (10 minuti), 2 che è finito il gioco (30 secondi)
 
@@ -22,6 +14,13 @@ public class NetworkMapManager : MonoBehaviour
     public NetworkManager networkManager;
 
     public List<Vector3> spawnPoints;
+    private AssetBundle _map;
+
+    private string _mapHash;
+
+    private string _mapName;
+
+    private string _mapPath;
 
     public void StartMapManager()
     {

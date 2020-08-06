@@ -74,7 +74,6 @@
      <Compile Include="Assets\Scripts\NetPlayer.cs" />
      <Compile Include="Assets\Scripts\Main\CreateNetworkManager.cs" />
      <Compile Include="Assets\Scripts\LiteNetLib\Utils\NtpRequest.cs" />
-     <Compile Include="Assets\Scripts\LiteNetLib\NetExceptions.cs" />
      <Compile Include="Assets\Scripts\LiteNetLib\BaseChannel.cs" />
      <Compile Include="Assets\Scripts\LiteNetLib\Utils\INetSerializable.cs" />
      <Compile Include="Assets\Scripts\LiteNetLib\Utils\NetSerializer.cs" />
