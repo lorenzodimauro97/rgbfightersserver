@@ -94,7 +94,7 @@ public class NetworkPlayers : MonoBehaviour
         if (!deadPlayer.IsAlive) return;
 
         deadPlayer.SetAlive(false);
-        Debug.Log($"Player {name} è Morto");
+        //Debug.Log($"Player {name} è Morto");
 
         _networkManager.SendMessageToClient($"PlayerDead@{deadPlayer.GetPeerId()}");
 

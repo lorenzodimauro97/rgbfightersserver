@@ -30,7 +30,7 @@ public class MessageHandler : MonoBehaviour
                 _networkManager.SendChatMessage(data);
                 break;
             case "GunShoot":
-                _networkManager.networkFps.Shoot(dataArray, peer);
+                _networkManager.networkFps.ParseShootingData(dataArray, peer);
                 break;
             case "GunChange":
                 _networkManager.networkPlayer.ChangePlayerGunIndex(dataArray[1], peer);

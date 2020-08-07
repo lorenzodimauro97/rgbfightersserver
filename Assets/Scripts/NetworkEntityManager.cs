@@ -31,22 +31,26 @@ public class NetworkEntityManager : MonoBehaviour
         {
             var tdelay = Task.Delay(delay);
 
-            foreach (var message in movableEntities.Select(e => $"EntityPosition@{e.entityId}" +
-                                                                $"@{e.position.x}" +
-                                                                $"@{e.position.y}" +
-                                                                $"@{e.position.z}" +
-                                                                $"@{e.euler.x}" +
-                                                                $"@{e.euler.y}" +
-                                                                $"@{e.euler.z}"))
-                SendMessageToClient(message);
+            foreach (var e in movableEntities)
+            {
+                SendMessageToClient($"EntityPosition@{e.entityId}" +
+                                    $"@{e.transform.position.x}" +
+                                    $"@{transform.position.y}" +
+                                    $"@{e.transform.position.z}" +
+                                    $"@{e.transform.eulerAngles.x}" +
+                                    $"@{e.transform.eulerAngles.y}" +
+                                    $"@{e.transform.eulerAngles.z}");
+            }
             await tdelay;
         }
     }
 
     public void SendClientEntitiesStatus(NetPeer peer)
     {
-        foreach (var message in entities.Select(e => $"EntitySetActive@{e.entityId}@{e.gameObject.activeSelf}"))
-            SendMessageToClient(message, peer);
+        foreach (var e in movableEntities)
+        {
+            SendMessageToClient($"EntitySetActive@{e.entityId}@{e.gameObject.activeSelf}", peer);
+        }
     }
 
     public void AddEntity(NetworkEntity entity)

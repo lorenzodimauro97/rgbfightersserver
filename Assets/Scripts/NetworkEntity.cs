@@ -126,7 +126,7 @@ public class NetworkEntity : MonoBehaviour
     {
         gameObject.SetActive(false);
 
-        var message = $"EntitySetActive@{entityId}@false";
+        var message = $"EntitySetActive@{entityId}@False";
 
         SendNewEntityData(message);
     }
@@ -135,7 +135,7 @@ public class NetworkEntity : MonoBehaviour
     {
         gameObject.SetActive(true);
 
-        var message = $"EntitySetActive@{entityId}@true";
+        var message = $"EntitySetActive@{entityId}@True";
 
         SendNewEntityData(message);
     }

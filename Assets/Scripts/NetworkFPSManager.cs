@@ -12,8 +12,8 @@ public class NetworkFPSManager : MonoBehaviour
 
     public List<Gun> gunTypes = new List<Gun>
     {
-        new Gun(20, 0.75f, "0", 300, 10),
-        new Gun(70, 2.0f, "1", 70, 3)
+        new Gun(20, 0.75f, "0", 300, 10, 50),
+        new Gun(70, 2.0f, "1", 70, 3, 200)
     };
 
     private NetworkManager _networkManager;
@@ -23,7 +23,43 @@ public class NetworkFPSManager : MonoBehaviour
         _networkManager = GetComponent<NetworkManager>();
     }
 
-    public void Shoot(string[] data, NetPeer peer)
+    private void Shoot(Vector3 hitPosition, Vector3 hitDirection, Gun shootingGun, Player shootingPlayer, int peerId)
+    {
+        Player player = null;
+
+        NetworkEntity entity = null;
+        
+        var hits = new RaycastHit[4];
+
+        //Starts RaycastNonAlloc and then goes through it looking for players or entities 
+
+        var size = Physics.RaycastNonAlloc(hitPosition, hitDirection, hits, shootingGun.Distance);
+
+        foreach (var h in hits)
+        {
+            if(!h.transform) continue;
+
+            if (h.transform.CompareTag("Player"))
+            {
+                var hitPlayer = h.transform.GetComponent<Player>();
+                
+                if (!hitPlayer.GetPeerId().Equals(peerId))
+                    player = hitPlayer;
+            }
+            
+            else if (h.transform.CompareTag("Entity")) entity = h.transform.gameObject.GetComponent<NetworkEntity>();
+        }
+
+        if (entity) EntityShoot(entity, hitDirection, hitPosition, shootingGun);
+
+        if (!player || player.Team == shootingPlayer.Team) return;
+
+        var playerPosition = player.transform.position; //Non possiamo passare direttamente la posizione dal transform al task! Altrimenti va in errore.
+
+        Task.Run(() => CalculateShootData(player, playerPosition, hitPosition, shootingGun.Damage));
+    }
+
+    public void ParseShootingData(string[] data, NetPeer peer)
     {
         var hitPosition = new Vector3(float.Parse(data[1]),
             float.Parse(data[2]),
@@ -32,50 +68,26 @@ public class NetworkFPSManager : MonoBehaviour
         var hitDirection = new Vector3(float.Parse(data[4]),
             float.Parse(data[5]),
             float.Parse(data[6]));
-
-        _networkManager.SendMessageToClient($"PlayerShoot@{peer.Id}");
-
+        
+        Debug.DrawRay(hitPosition, hitDirection * 10, Color.green, 100);
+        
         var shootingGun = gunTypes.Find(x => x.Id == data[7]);
 
         var shootingPlayer = _networkManager.networkPlayer.FindPlayer(peer);
-
-        var hits = new RaycastHit[8];
-
-        Physics.RaycastNonAlloc(hitPosition, hitDirection, hits, shootingGun.Distance);
-
-        Player player = null;
-
-        NetworkEntity entity = null;
-
-        foreach (var h in hits)
-        {
-            if (h.collider == null) continue;
-
-            if (h.transform.CompareTag("Player") && !h.transform.GetComponent<Player>().GetPeerId().Equals(peer.Id))
-                player = h.transform.gameObject.GetComponent<Player>();
-            else if (h.transform.CompareTag("Entity")) entity = h.transform.gameObject.GetComponent<NetworkEntity>();
-        }
-
-        if (entity) EntityShoot(entity, hitDirection, hitPosition);
-
-        if (!player || player.Team == shootingPlayer.Team) return;
-
-        var playerPosition =
-            player.transform
-                .position; //Non possiamo passare direttamente la posizione dal transform al task! Altrimenti va in errore.
-
-        Task.Run(() => CalculateShootData(player, playerPosition, hitPosition, shootingGun.Damage));
+        
+        _networkManager.SendMessageToClient($"PlayerShoot@{peer.Id}");
+        
+        Shoot(hitPosition, hitDirection, shootingGun, shootingPlayer, peer.Id);
     }
 
-    private static void EntityShoot(NetworkEntity entity, Vector3 direction, Vector3 hitPosition)
+    private static void EntityShoot(NetworkEntity entity, Vector3 direction, Vector3 hitPosition, Gun gun)
     {
         var shootDistance = Vector3.Distance(entity.transform.position, hitPosition);
-        entity.AddForce(direction, 70 / shootDistance);
+        entity.AddForce(direction, gun.EntityShootPower);
     }
 
     private void CalculateShootData(Player player, Vector3 playerPosition, Vector3 hitPosition, float damageData)
     {
-        //Debug.Log("Starting Shoot Calculation");
         if (!player.IsAlive) return;
 
         var shootDistance = Vector3.Distance(playerPosition, hitPosition);
@@ -89,7 +101,7 @@ public class NetworkFPSManager : MonoBehaviour
 
         player.Health -= damage;
 
-        Debug.Log($"Player {player.Name} received {damage} damage! {player.Health} health left");
+        //Debug.Log($"Player {player.Name} received {damage} damage! {player.Health} health left");
 
         if (player.Health <= 0)
         {
