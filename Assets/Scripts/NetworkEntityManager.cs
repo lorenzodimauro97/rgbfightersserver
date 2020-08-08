@@ -49,6 +49,7 @@ public class NetworkEntityManager : MonoBehaviour
     {
         foreach (var e in movableEntities)
         {
+            if(!e) continue;
             SendMessageToClient($"EntitySetActive@{e.entityId}@{e.gameObject.activeSelf}", peer);
         }
     }

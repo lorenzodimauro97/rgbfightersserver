@@ -22,6 +22,8 @@ public class NetworkMapManager : MonoBehaviour
 
     private string _mapPath;
 
+    public int remainingMatchSeconds;
+
     public void StartMapManager()
     {
         _mapPath = Application.dataPath + "/Maps/map";
@@ -61,6 +63,8 @@ public class NetworkMapManager : MonoBehaviour
                     break;
 
                 case 1:
+                    remainingMatchSeconds = 600;
+                    StartCoroutine(CountDownMatch());
                     yield return new WaitForSeconds(600);
                     gameplayState = 2;
                     break;
@@ -96,17 +100,24 @@ public class NetworkMapManager : MonoBehaviour
         switch (gameplayState)
         {
             case 0:
-                networkManager.SendMessageToClient(
-                    "LoadMap@1", peer);
+                networkManager.SendMessageToClient($"LoadMap@1", peer);
                 break;
 
             case 1:
                 networkManager.SendMessageToClient(
-                    $"DownloadMap@{mapDownloadLink}@{_mapHash}@{_mapName}",
+                    $"DownloadMap@{mapDownloadLink}@{_mapHash}@{_mapName}@{remainingMatchSeconds}",
                     peer);
                 Debug.Log("Sending map to load...");
                 break;
         }
+    }
+
+    IEnumerator CountDownMatch()
+    {
+        remainingMatchSeconds--;
+        yield return new WaitForSeconds(1);
+        if(gameplayState.Equals(1)) 
+            StartCoroutine(CountDownMatch());
     }
 
     private void SendMatchStatus()
@@ -115,7 +126,7 @@ public class NetworkMapManager : MonoBehaviour
         {
             case 0:
                 networkManager.SendMessageToClient(
-                    "LoadMap@1");
+                    $"LoadMap@1");
                 break;
 
             case 1:

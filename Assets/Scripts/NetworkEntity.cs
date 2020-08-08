@@ -7,7 +7,9 @@ public class NetworkEntity : MonoBehaviour
     {
         Ammo,
         Gun,
-        Movable
+        Movable,
+        Health,
+        Damage
     }
 
     public Entity entityType;
@@ -84,7 +86,25 @@ public class NetworkEntity : MonoBehaviour
             case Entity.Movable:
                 CheckTriggerTagForForce(other);
                 break;
+            case Entity.Health:
+                HealthEntityTrigger(other);
+                break;
         }
+    }
+
+    private void HealthEntityTrigger(Collider collider)
+    {
+        if (!collider.CompareTag("Player")) return;
+        
+        var peer = collider.gameObject.GetComponent<Player>().GetPeer();
+
+        var message = $"HealthAdd@{Random.Range(10, 70)}";
+
+        SendNewEntityData(message, peer);
+
+        Invoke(nameof(EnableEntity), Random.Range(10, 60));
+
+        DisableEntity();
     }
 
     private void GunEntityTrigger(Collider collider)
@@ -97,7 +117,7 @@ public class NetworkEntity : MonoBehaviour
 
         SendNewEntityData(message, peer);
 
-        Invoke(nameof(EnableEntity), Random.Range(10, 60));
+        Invoke(nameof(EnableEntity), Random.Range(20, 120));
 
         DisableEntity();
     }
@@ -143,7 +163,12 @@ public class NetworkEntity : MonoBehaviour
     private void CheckTriggerTagForForce(Collider other)
     {
         if (!other.transform.CompareTag("Player")) return;
-        var force = transform.position - other.transform.position;
+
+        var player = other.gameObject.GetComponent<Player>();
+
+        if (_rigidbody.velocity.magnitude > 7) _networkEntityManager._networkManager.networkFps.CalculateShootData(player, (_rigidbody.velocity.magnitude * _rigidbody.mass) / 10);
+
+            var force = (transform.position - other.transform.position) * 2;
         AddForce(force);
     }
 

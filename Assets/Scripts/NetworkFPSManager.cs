@@ -113,4 +113,24 @@ public class NetworkFPSManager : MonoBehaviour
             _networkManager.SendMessageToClient($"PlayerHit@{player.GetPeerId()}@{player.Health}");
         }
     }
+    
+    public void CalculateShootData(Player player, float damage)
+    {
+        if (!player.IsAlive) return;
+
+        player.Health -= damage;
+
+        //Debug.Log($"Player {player.Name} received {damage} damage! {player.Health} health left");
+
+        if (player.Health <= 0)
+        {
+            player.Health = 0;
+            _networkManager.networkPlayer.KillPlayer(player.Name);
+        }
+        else
+        {
+            _networkManager.SendMessageToClient($"PlayerHit@{player.GetPeerId()}@{player.Health}");
+        }
+    }
+    
 }

@@ -47,7 +47,7 @@ public class NetworkPlayers : MonoBehaviour
         players.Add(newPlayer);
 
         _networkManager.SendMessageToClient(
-            $"PlayerInformation@{peer.Id}@{newPlayer.Team}@{playerColor.r}@{playerColor.g}@{playerColor.b}@{spawnPoint.x}@{spawnPoint.y}@{spawnPoint.z}",
+            $"PlayerInformation@{peer.Id}@{newPlayer.Team}@{playerColor.r}@{playerColor.g}@{playerColor.b}@{spawnPoint.x}@{spawnPoint.y}@{spawnPoint.z}@{_networkManager.networkMap.remainingMatchSeconds}",
             peer);
 
         SendPlayerListToClients();
