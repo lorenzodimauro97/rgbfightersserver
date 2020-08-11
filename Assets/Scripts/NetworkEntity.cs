@@ -16,7 +16,8 @@ public class NetworkEntity : MonoBehaviour
     public Entity entityType;
     public string gunId;
     public string entityId;
-    
+
+    public int damageAmount;
     
     public Vector3 euler;
     public Vector3 position;
@@ -37,10 +38,10 @@ public class NetworkEntity : MonoBehaviour
 
     private void FixedUpdate()
     {
+        CheckIfOutOfBounds();
+        
         if (position == transform.position || euler == transform.eulerAngles ||
         entityType != Entity.Movable || entityType != Entity.Damage) return;
-
-        CheckIfOutOfBounds();
 
         position = transform.position;
         euler = transform.eulerAngles;
@@ -58,7 +59,7 @@ public class NetworkEntity : MonoBehaviour
 
     private void CheckIfOutOfBounds()
     {
-        if (!(transform.position.y < -1000)) return;
+        if (!(transform.position.y < -1500)) return;
         
         _rigidbody.velocity = Vector3.zero;
             
@@ -87,19 +88,22 @@ public class NetworkEntity : MonoBehaviour
                 GunEntityTrigger(other);
                 break;
             case Entity.Movable:
-                CheckTriggerTagForForce(other);
+                MovableEntityTrigger(other);
                 break;
             case Entity.Health:
                 HealthEntityTrigger(other);
                 break;
+            case Entity.Damage:
+                DamageEntityTrigger(other);
+                break;
         }
     }
 
-    private void HealthEntityTrigger(Component collider)
+    private void HealthEntityTrigger(Component other)
     {
-        if (!collider.CompareTag("Player")) return;
+        if (!other.CompareTag("Player")) return;
         
-        var peer = collider.gameObject.GetComponent<Player>().GetPeer();
+        var peer = other.gameObject.GetComponent<Player>().GetPeer();
 
         var message = $"HealthAdd@{Random.Range(10, 70)}";
 
@@ -110,11 +114,11 @@ public class NetworkEntity : MonoBehaviour
         DisableEntity();
     }
 
-    private void GunEntityTrigger(Component collider)
+    private void GunEntityTrigger(Component other)
     {
-        if (!collider.CompareTag("Player")) return;
+        if (!other.CompareTag("Player")) return;
 
-        var peer = collider.gameObject.GetComponent<Player>().GetPeer();
+        var peer = other.gameObject.GetComponent<Player>().GetPeer();
 
         var message = $"GunAdd@{gunId}";
 
@@ -125,11 +129,11 @@ public class NetworkEntity : MonoBehaviour
         DisableEntity();
     }
 
-    private void AmmoEntityTrigger(Collider collider)
+    private void AmmoEntityTrigger(Collider other)
     {
-        if (!collider.CompareTag("Player")) return;
+        if (!other.CompareTag("Player")) return;
 
-        var player = collider.gameObject.GetComponent<Player>();
+        var player = other.gameObject.GetComponent<Player>();
 
         var peer = player.GetPeer();
 
@@ -145,9 +149,17 @@ public class NetworkEntity : MonoBehaviour
         DisableEntity();
     }
 
-    private void DamageEntityTrigger()
+    private void DamageEntityTrigger(Component other)
     {
+        if (!other.CompareTag("Player")) return;
         
+        var player = other.gameObject.GetComponent<Player>();
+
+        _networkEntityManager._networkManager.networkFps.CalculateShootData(player, damageAmount);
+        
+        SendNewEntityData($"EntityDespawn@{entityId}");
+
+        _networkEntityManager.RemoveEntity(this);
     }
 
     private void DisableEntity()
@@ -168,7 +180,7 @@ public class NetworkEntity : MonoBehaviour
         SendNewEntityData(message);
     }
 
-    private void CheckTriggerTagForForce(Collider other)
+    private void MovableEntityTrigger(Collider other)
     {
         if (!other.transform.CompareTag("Player")) return;
 

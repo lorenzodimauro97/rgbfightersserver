@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LiteNetLib;
 using UnityEngine;
+using UnityEngine.Networking.Types;
 
 public class NetworkEntityManager : MonoBehaviour
 {
@@ -21,12 +22,13 @@ public class NetworkEntityManager : MonoBehaviour
         _networkManager = GetComponent<NetworkManager>();
         entities = new List<NetworkEntity>();
         new Task(() => SendContinuousPosition(3000), TaskCreationOptions.LongRunning).Start();
+        StartCoroutine(SpawnEntity());
     }
 
     IEnumerator SpawnEntity()
     {
-        yield return new WaitForSeconds(6);
-        SpawnEntity(new string[]{});
+        yield return new WaitForSeconds(10);
+        SpawnEntity(new[]{"null", "RGBall", "0","0","0","0","0","0"});
     }
 
     private void OnApplicationQuit()
@@ -73,13 +75,11 @@ public class NetworkEntityManager : MonoBehaviour
 
         var networkEntity = Instantiate(entity, position, Quaternion.identity).GetComponent<NetworkEntity>();
         networkEntity.entityId = entities.Count.ToString();
-        
-        AddEntity(networkEntity);
 
         position = networkEntity.position;
         var eulerAngles = networkEntity.euler;
         
-        SendMessageToClient($"EntitySpawn@{networkEntity.name}@{networkEntity.entityId}" +
+        SendMessageToClient($"EntitySpawn@{entity.name}@{networkEntity.entityId}" +
                             $"@{position.x}@{position.y}@{position.z}" +
                             $"@{eulerAngles.x}@{eulerAngles.y}@{eulerAngles.z}");
     }
@@ -88,6 +88,13 @@ public class NetworkEntityManager : MonoBehaviour
     {
         entities.Add(entity);
         Debug.Log($"Added Entity with ID {entity.entityId} and Type {entity.entityType}");
+    }
+
+    public void RemoveEntity(NetworkEntity entity)
+    {
+        entities.RemoveAll(x => x.entityId == entity.entityId);
+        movableEntities.RemoveAll(x => x.entityId == entity.entityId);
+        Destroy(entity.gameObject);
     }
 
     public void SendMessageToClient(string message, NetPeer peer)

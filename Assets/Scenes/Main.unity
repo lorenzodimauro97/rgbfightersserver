@@ -140,7 +140,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68a8923761e60334f998c2406d7571ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _networkManager: {fileID: 0}
   entities: []
+  movableEntities: []
+  spawnableEntities:
+  - {fileID: -641654942423699917, guid: 1b57af3626b6d8340b219fa1802d7fda, type: 3}
 --- !u!1001 &2007609170
 PrefabInstance:
   m_ObjectHideFlags: 0

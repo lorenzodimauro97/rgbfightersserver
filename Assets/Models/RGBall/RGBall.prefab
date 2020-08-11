@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 6884517223635558492}
   - component: {fileID: 240609591512929083}
   - component: {fileID: -641654942423699917}
+  - component: {fileID: 6504195228937532932}
+  - component: {fileID: 6312009165165931739}
   m_Layer: 0
   m_Name: RGBall
   m_TagString: Untagged
@@ -27,13 +29,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4938842956010652041}
-  m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071067}
+  m_LocalRotation: {x: -0.7069834, y: 0, z: 0, w: 0.7072302}
   m_LocalPosition: {x: -0.573, y: 0.528, z: -0.2301}
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -89.98, y: 0, z: 0}
 --- !u!33 &8677944697564157078
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -115,5 +117,32 @@ MonoBehaviour:
   entityType: 4
   gunId: 
   entityId: 
+  damageAmount: 30
   euler: {x: 0, y: 0, z: 0}
   position: {x: 0, y: 0, z: 0}
+--- !u!135 &6504195228937532932
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4938842956010652041}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.00029999996
+  m_Center: {x: -4.3655746e-11, y: -3.0559016e-10, z: -6.2573224e-10}
+--- !u!135 &6312009165165931739
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4938842956010652041}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.0005
+  m_Center: {x: -4.3655746e-11, y: -3.0559016e-10, z: -6.2573224e-10}
