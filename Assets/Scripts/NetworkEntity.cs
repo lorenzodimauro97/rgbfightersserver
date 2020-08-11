@@ -40,8 +40,8 @@ public class NetworkEntity : MonoBehaviour
     {
         CheckIfOutOfBounds();
         
-        if (position == transform.position || euler == transform.eulerAngles ||
-        entityType != Entity.Movable || entityType != Entity.Damage) return;
+        if (position == transform.position && euler == transform.eulerAngles) return;
+        if (entityType == Entity.Health || entityType == Entity.Ammo || entityType == Entity.Gun) return;
 
         position = transform.position;
         euler = transform.eulerAngles;
