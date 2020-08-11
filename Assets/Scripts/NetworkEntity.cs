@@ -1,6 +1,7 @@
 ﻿using LiteNetLib;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class NetworkEntity : MonoBehaviour
 {
     public enum Entity
@@ -15,13 +16,14 @@ public class NetworkEntity : MonoBehaviour
     public Entity entityType;
     public string gunId;
     public string entityId;
+    
+    
     public Vector3 euler;
     public Vector3 position;
 
     private Rigidbody _rigidbody;
-
+    
     private NetworkEntityManager _networkEntityManager;
-
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -29,20 +31,21 @@ public class NetworkEntity : MonoBehaviour
         _networkEntityManager = GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkEntityManager>();
         _networkEntityManager.AddEntity(this);
 
-        if (entityType != Entity.Ammo && entityType != Entity.Gun)
+        if (entityType == Entity.Movable || entityType == Entity.Damage)
             _networkEntityManager.movableEntities.Add(GetComponent<NetworkEntity>());
     }
 
     private void FixedUpdate()
     {
-        if (position == transform.position || euler == transform.eulerAngles) return;
+        if (position == transform.position || euler == transform.eulerAngles ||
+        entityType != Entity.Movable || entityType != Entity.Damage) return;
 
         CheckIfOutOfBounds();
 
         position = transform.position;
         euler = transform.eulerAngles;
 
-        var message = $"EntityPosition@{entityId}" +
+        var message = $"EntityPosition@{name}@{entityId}" +
                       $"@{position.x}" +
                       $"@{position.y}" +
                       $"@{position.z}" +
@@ -92,7 +95,7 @@ public class NetworkEntity : MonoBehaviour
         }
     }
 
-    private void HealthEntityTrigger(Collider collider)
+    private void HealthEntityTrigger(Component collider)
     {
         if (!collider.CompareTag("Player")) return;
         
@@ -107,7 +110,7 @@ public class NetworkEntity : MonoBehaviour
         DisableEntity();
     }
 
-    private void GunEntityTrigger(Collider collider)
+    private void GunEntityTrigger(Component collider)
     {
         if (!collider.CompareTag("Player")) return;
 
@@ -140,6 +143,11 @@ public class NetworkEntity : MonoBehaviour
         Invoke(nameof(EnableEntity), 5.0f);
 
         DisableEntity();
+    }
+
+    private void DamageEntityTrigger()
+    {
+        
     }
 
     private void DisableEntity()

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LiteNetLib;
@@ -11,6 +12,8 @@ public class NetworkEntityManager : MonoBehaviour
     public List<NetworkEntity> entities;
 
     public List<NetworkEntity> movableEntities;
+
+    public List<NetworkEntity> spawnableEntities;
     private bool _isQuitting;
 
     private void Start()
@@ -18,6 +21,12 @@ public class NetworkEntityManager : MonoBehaviour
         _networkManager = GetComponent<NetworkManager>();
         entities = new List<NetworkEntity>();
         new Task(() => SendContinuousPosition(3000), TaskCreationOptions.LongRunning).Start();
+    }
+
+    IEnumerator SpawnEntity()
+    {
+        yield return new WaitForSeconds(6);
+        SpawnEntity(new string[]{});
     }
 
     private void OnApplicationQuit()
@@ -33,7 +42,7 @@ public class NetworkEntityManager : MonoBehaviour
 
             foreach (var e in movableEntities)
             {
-                SendMessageToClient($"EntityPosition@{e.entityId}" +
+                SendMessageToClient($"EntityPosition@{e.name}@{e.entityId}" +
                                     $"@{e.transform.position.x}" +
                                     $"@{transform.position.y}" +
                                     $"@{e.transform.position.z}" +
@@ -52,6 +61,27 @@ public class NetworkEntityManager : MonoBehaviour
             if(!e) continue;
             SendMessageToClient($"EntitySetActive@{e.entityId}@{e.gameObject.activeSelf}", peer);
         }
+    }
+
+    public void SpawnEntity(string[] data)
+    {
+        var entity = spawnableEntities.Find(g => g.name == data[1]);
+        if (!entity) return;
+        
+        var position = new Vector3(float.Parse(data[2]), float.Parse(data[3]), float.Parse(data[4]));
+        var direction = new Vector3(float.Parse(data[5]), float.Parse(data[6]), float.Parse(data[7]));
+
+        var networkEntity = Instantiate(entity, position, Quaternion.identity).GetComponent<NetworkEntity>();
+        networkEntity.entityId = entities.Count.ToString();
+        
+        AddEntity(networkEntity);
+
+        position = networkEntity.position;
+        var eulerAngles = networkEntity.euler;
+        
+        SendMessageToClient($"EntitySpawn@{networkEntity.name}@{networkEntity.entityId}" +
+                            $"@{position.x}@{position.y}@{position.z}" +
+                            $"@{eulerAngles.x}@{eulerAngles.y}@{eulerAngles.z}");
     }
 
     public void AddEntity(NetworkEntity entity)
