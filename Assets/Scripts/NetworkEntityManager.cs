@@ -103,7 +103,7 @@ public class NetworkEntityManager : MonoBehaviour
                             $"@{position.x}@{position.y}@{position.z}" +
                             $"@{eulerAngles.x}@{eulerAngles.y}@{eulerAngles.z}");
 
-        return entity;
+        return networkEntity;
     }
 
     public void AddEntity(NetworkEntity entity)

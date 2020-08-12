@@ -13,7 +13,7 @@ public class NetworkFPSManager : MonoBehaviour
     public List<Gun> gunTypes = new List<Gun>
     {
         new Gun(20, 0.75f, "0", 300, 10, 50, 0),
-        new Gun(70, 2.0f, "1", 70, 3, 200, 60000)
+        new Gun(70, 2.0f, "1", 70, 3, 200, 60)
     };
 
     private NetworkManager _networkManager;
@@ -42,7 +42,7 @@ public class NetworkFPSManager : MonoBehaviour
 
         var entity = _networkManager.networkEntity.SpawnEntity(hitPosition, entityName);
         
-        entity.AddForce(hitDirection * gun.EntityBulletPower);
+        entity.GetComponent<Rigidbody>().AddForce(hitDirection * gun.EntityBulletPower, ForceMode.VelocityChange);
     }
 
     private void Shoot(Vector3 hitPosition, Vector3 hitDirection, Gun shootingGun, Player shootingPlayer, int peerId)
@@ -95,7 +95,7 @@ public class NetworkFPSManager : MonoBehaviour
 
     private static void EntityShoot(NetworkEntity entity, Vector3 direction, Gun gun)
     {
-        entity.AddForce(direction, gun.EntityShootPower);
+        entity.AddForce(direction, gun.EntityShootPower, ForceMode.VelocityChange);
     }
 
     private void CalculateShootData(Player player, Vector3 playerPosition, Vector3 hitPosition, float damageData)

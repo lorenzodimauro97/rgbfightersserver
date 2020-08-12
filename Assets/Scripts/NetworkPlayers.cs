@@ -48,8 +48,8 @@ public class NetworkPlayers : MonoBehaviour
         
         newPlayer.Spawn(playerData[1], _teamSelect ? "etero" : "rgb", peer, spawnPoint, playerColor);
 
-        if (_teamSelect) _teamRgbCount++;
-        else _teamEteroCount++;
+        if (_teamSelect) _teamEteroCount++;
+        else _teamRgbCount++;
 
         players.Add(newPlayer);
 

@@ -24,7 +24,7 @@ public class NetworkEntity : MonoBehaviour
 
     private Rigidbody _rigidbody;
     
-    private NetworkEntityManager _networkEntityManager;
+    public NetworkEntityManager _networkEntityManager;
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -196,16 +196,21 @@ public class NetworkEntity : MonoBehaviour
     {
         const int magnitude = 2;
         direction.Normalize();
-        GetComponent<Rigidbody>().AddForce(direction * magnitude, ForceMode.VelocityChange);
+        _rigidbody.AddForce(direction * magnitude, ForceMode.VelocityChange);
     }
 
-    public void AddForce(Vector3 direction, float magnitude)
+    public void AddForce(Vector3 direction, float magnitude, ForceMode forceMode)
     {
         direction.Normalize();
-        GetComponent<Rigidbody>().AddForce(direction * magnitude, ForceMode.VelocityChange);
+        _rigidbody.AddForce(direction * magnitude, forceMode);
     }
 
-    private void SendNewEntityData(string message)
+    public Vector3 GetVelocity()
+    {
+        return _rigidbody.velocity;
+    }
+
+    public void SendNewEntityData(string message)
     {
         _networkEntityManager.SendMessageToClient(message);
     }
