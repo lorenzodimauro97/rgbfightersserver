@@ -78,10 +78,32 @@ public class NetworkEntityManager : MonoBehaviour
 
         position = networkEntity.position;
         var eulerAngles = networkEntity.euler;
+
+        networkEntity.name = entity.name;
         
-        SendMessageToClient($"EntitySpawn@{entity.name}@{networkEntity.entityId}" +
+        SendMessageToClient($"EntitySpawn@{networkEntity.name}@{networkEntity.entityId}" +
                             $"@{position.x}@{position.y}@{position.z}" +
                             $"@{eulerAngles.x}@{eulerAngles.y}@{eulerAngles.z}");
+    }
+
+    public NetworkEntity SpawnEntity(Vector3 position, string entityName)
+    {
+        var entity = spawnableEntities.Find(g => g.name == entityName);
+        if (!entity) return null;
+        
+        var networkEntity = Instantiate(entity, position, Quaternion.identity).GetComponent<NetworkEntity>();
+        networkEntity.entityId = entities.Count.ToString();
+
+        position = networkEntity.position;
+        var eulerAngles = networkEntity.euler;
+
+        networkEntity.name = entity.name;
+        
+        SendMessageToClient($"EntitySpawn@{networkEntity.name}@{networkEntity.entityId}" +
+                            $"@{position.x}@{position.y}@{position.z}" +
+                            $"@{eulerAngles.x}@{eulerAngles.y}@{eulerAngles.z}");
+
+        return entity;
     }
 
     public void AddEntity(NetworkEntity entity)

@@ -12,8 +12,8 @@ public class NetworkFPSManager : MonoBehaviour
 
     public List<Gun> gunTypes = new List<Gun>
     {
-        new Gun(20, 0.75f, "0", 300, 10, 50),
-        new Gun(70, 2.0f, "1", 70, 3, 200)
+        new Gun(20, 0.75f, "0", 300, 10, 50, 0),
+        new Gun(70, 2.0f, "1", 70, 3, 200, 60000)
     };
 
     private NetworkManager _networkManager;
@@ -23,13 +23,31 @@ public class NetworkFPSManager : MonoBehaviour
         _networkManager = GetComponent<NetworkManager>();
     }
 
+    public void ParseEntityShootData(string[] data)
+    {
+        var hitPosition = new Vector3(float.Parse(data[1]),
+            float.Parse(data[2]),
+            float.Parse(data[3]));
+
+        var hitDirection = new Vector3(float.Parse(data[4]),
+            float.Parse(data[5]),
+            float.Parse(data[6]));
+
+        EntityShoot(hitPosition, hitDirection, data[7], data[8]);
+    }
+
+    private void EntityShoot(Vector3 hitPosition, Vector3 hitDirection, string gunIndex, string entityName)
+    {
+        var gun = gunTypes.Find(x => x.Id == gunIndex);
+
+        var entity = _networkManager.networkEntity.SpawnEntity(hitPosition, entityName);
+        
+        entity.AddForce(hitDirection * gun.EntityBulletPower);
+    }
+
     private void Shoot(Vector3 hitPosition, Vector3 hitDirection, Gun shootingGun, Player shootingPlayer, int peerId)
     {
-        Player player = null;
-
-        NetworkEntity entity = null;
-        
-        var hits = new RaycastHit[4];
+        var hits = new RaycastHit[6];
 
         //Starts RaycastNonAlloc and then goes through it looking for players or entities 
 
@@ -38,25 +56,20 @@ public class NetworkFPSManager : MonoBehaviour
         foreach (var h in hits)
         {
             if(!h.transform) continue;
-
+            //Debug.Log(h.transform.name);
             if (h.transform.CompareTag("Player"))
             {
                 var hitPlayer = h.transform.GetComponent<Player>();
+
+                if (hitPlayer.Team == shootingPlayer.Team || hitPlayer.GetPeerId() == peerId) return;
                 
-                if (!hitPlayer.GetPeerId().Equals(peerId))
-                    player = hitPlayer;
+                var playerPosition = hitPlayer.transform.position; //Non possiamo passare direttamente la posizione dal transform al task! Altrimenti va in errore.
+
+                Task.Run(() => CalculateShootData(hitPlayer, playerPosition, hitPosition, shootingGun.Damage));
             }
             
-            else if (h.transform.CompareTag("Entity")) entity = h.transform.gameObject.GetComponent<NetworkEntity>();
+            else if (h.transform.CompareTag("Entity")) EntityShoot(h.transform.gameObject.GetComponent<NetworkEntity>(), hitDirection, shootingGun);
         }
-
-        if (entity) EntityShoot(entity, hitDirection, hitPosition, shootingGun);
-
-        if (!player || player.Team == shootingPlayer.Team) return;
-
-        var playerPosition = player.transform.position; //Non possiamo passare direttamente la posizione dal transform al task! Altrimenti va in errore.
-
-        Task.Run(() => CalculateShootData(player, playerPosition, hitPosition, shootingGun.Damage));
     }
 
     public void ParseShootingData(string[] data, NetPeer peer)
@@ -80,9 +93,8 @@ public class NetworkFPSManager : MonoBehaviour
         Shoot(hitPosition, hitDirection, shootingGun, shootingPlayer, peer.Id);
     }
 
-    private static void EntityShoot(NetworkEntity entity, Vector3 direction, Vector3 hitPosition, Gun gun)
+    private static void EntityShoot(NetworkEntity entity, Vector3 direction, Gun gun)
     {
-        var shootDistance = Vector3.Distance(entity.transform.position, hitPosition);
         entity.AddForce(direction, gun.EntityShootPower);
     }
 

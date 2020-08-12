@@ -32,6 +32,9 @@ public class MessageHandler : MonoBehaviour
             case "GunShoot":
                 _networkManager.networkFps.ParseShootingData(dataArray, peer);
                 break;
+            case "GunEntityShoot":
+                _networkManager.networkFps.ParseEntityShootData(dataArray);
+                break;
             case "GunChange":
                 _networkManager.networkPlayer.ChangePlayerGunIndex(dataArray[1], peer);
                 break;

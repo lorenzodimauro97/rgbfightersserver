@@ -1,6 +1,6 @@
 ﻿public class Gun
 {
-    public Gun(int damage, float reloadTime, string id, int distance, int reloadAmount, int entityShootPower)
+    public Gun(int damage, float reloadTime, string id, int distance, int reloadAmount, int entityShootPower, int entityBulletPower)
     {
         Damage = damage;
         ReloadTime = reloadTime;
@@ -8,6 +8,7 @@
         Distance = distance;
         ReloadAmount = reloadAmount;
         EntityShootPower = entityShootPower;
+        EntityBulletPower = entityBulletPower;
     }
 
     public int Damage { get; }
@@ -15,5 +16,7 @@
     public string Id { get; }
     public int Distance { get; }
     public int ReloadAmount { get; }
-    public int EntityShootPower { get; }
+    public int EntityShootPower { get;}
+    
+    public int EntityBulletPower { get;}
 }
