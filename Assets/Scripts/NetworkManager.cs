@@ -97,13 +97,11 @@ public class NetworkManager : MonoBehaviour, INetEventListener
 
     public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
     {
-        var disconnectedPlayer = networkPlayer.FindPlayer(peer);
-
-        if (!disconnectedPlayer) return;
+        var disconnectedPlayer = networkPlayer.RemovePlayer(peer);
+        
+        if(!disconnectedPlayer) Debug.LogError("Disconnecting a player that doesn't exist! MAJOR BUG!");
 
         SendPeerDisconnectionToClients(disconnectedPlayer);
-        disconnectedPlayer.Dispose();
-        networkPlayer.players.RemoveAll(x => x.GetPeer() == peer);
     }
 
     private bool SetupNetManager()

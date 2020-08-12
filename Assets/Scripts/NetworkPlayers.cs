@@ -13,6 +13,9 @@ public class NetworkPlayers : MonoBehaviour
 
     private bool _teamSelect;
 
+    private int _teamRgbCount = 0;
+    private int _teamEteroCount = 0;
+
 
     private void Start()
     {
@@ -41,8 +44,12 @@ public class NetworkPlayers : MonoBehaviour
 
         var newPlayer = Instantiate(playerObject).AddComponent<Player>();
 
+        _teamSelect = _teamRgbCount > _teamEteroCount;
+        
         newPlayer.Spawn(playerData[1], _teamSelect ? "etero" : "rgb", peer, spawnPoint, playerColor);
-        _teamSelect = !_teamSelect;
+
+        if (_teamSelect) _teamRgbCount++;
+        else _teamEteroCount++;
 
         players.Add(newPlayer);
 
@@ -53,6 +60,20 @@ public class NetworkPlayers : MonoBehaviour
         SendPlayerListToClients();
 
         _networkManager.networkEntity.SendClientEntitiesStatus(peer);
+    }
+
+    public Player RemovePlayer(NetPeer peer)
+    {
+        var disconnectedPlayer = FindPlayer(peer);
+
+        if (!disconnectedPlayer) return null;
+
+        if (disconnectedPlayer.Team == "rgb") _teamRgbCount--;
+        else _teamEteroCount--;
+        
+        players.RemoveAll(x => x.GetPeer() == peer);
+
+        return disconnectedPlayer;
     }
 
     private void SendPlayerListToClients()
