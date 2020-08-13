@@ -100,6 +100,8 @@ public class NetworkManager : MonoBehaviour, INetEventListener
         var disconnectedPlayer = networkPlayer.RemovePlayer(peer);
         
         if(!disconnectedPlayer) Debug.LogError("Disconnecting a player that doesn't exist! MAJOR BUG!");
+        
+        Destroy(disconnectedPlayer.gameObject);
 
         SendPeerDisconnectionToClients(disconnectedPlayer);
     }
