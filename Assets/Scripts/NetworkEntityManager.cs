@@ -22,13 +22,6 @@ public class NetworkEntityManager : MonoBehaviour
         _networkManager = GetComponent<NetworkManager>();
         entities = new List<NetworkEntity>();
         new Task(() => SendContinuousPosition(3000), TaskCreationOptions.LongRunning).Start();
-        StartCoroutine(SpawnEntity());
-    }
-
-    IEnumerator SpawnEntity()
-    {
-        yield return new WaitForSeconds(10);
-        SpawnEntity(new[]{"null", "RGBall", "0","0","0","0","0","0"});
     }
 
     private void OnApplicationQuit()
