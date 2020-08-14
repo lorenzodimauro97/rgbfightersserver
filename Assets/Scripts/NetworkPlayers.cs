@@ -141,9 +141,10 @@ public class NetworkPlayers : MonoBehaviour
         return players.Find(x => x.Name == name);
     }
 
-    public void ClearPlayers()
+    public void Clear()
     {
         players.Clear();
+        players.Capacity = 0;
     }
 
     public void ChangePlayerGunIndex(string index, NetPeer peer)

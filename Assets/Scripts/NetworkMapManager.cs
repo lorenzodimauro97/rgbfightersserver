@@ -55,7 +55,8 @@ public class NetworkMapManager : MonoBehaviour
             switch (gameplayState)
             {
                 case 0:
-                    networkManager.networkPlayer.ClearPlayers();
+                    networkManager.networkPlayer.Clear();
+                    networkManager.networkEntity.Clear();
                     yield return new WaitForSeconds(6);
                     gameplayState = 1;
 
@@ -65,7 +66,7 @@ public class NetworkMapManager : MonoBehaviour
                 case 1:
                     remainingMatchSeconds = 600;
                     StartCoroutine(CountDownMatch());
-                    yield return new WaitForSeconds(600);
+                    yield return new WaitForSeconds(remainingMatchSeconds);
                     gameplayState = 2;
                     break;
 
