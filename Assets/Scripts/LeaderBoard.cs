@@ -5,7 +5,7 @@ using UnityEngine;
 public class LeaderBoard
 {
     public Player Player {get; }
-    public int KillCount { get; }
+    public int KillCount { get; set; }
 
     public LeaderBoard(Player player, int killCount)
     {

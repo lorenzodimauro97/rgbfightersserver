@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using LiteNetLib;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -20,6 +22,13 @@ public class NetworkLeaderboard : MonoBehaviour
         leaderBoard.Add(new LeaderBoard(player, 0));
     }
 
+    public void AddPoint(Player player)
+    {
+        var selectedPlayer = leaderBoard.Find(p => p.Player == player);
+
+        selectedPlayer.KillCount++;
+    }
+
     public void RemovePlayer(Player player)
     {
         leaderBoard.RemoveAll(x => x.Player.GetPeer() == player.GetPeer());
@@ -27,9 +36,11 @@ public class NetworkLeaderboard : MonoBehaviour
 
     public void Clear() => leaderBoard.Clear();
 
-    public void Send()
+    public void SendLeaderBoard()
     {
+        var message = leaderBoard.Aggregate("PlayerLeaderBoard@", (current, p) => current + $"{p.Player.name}&{p.KillCount}@");
         
+        _networkManager.SendMessageToClient(message);
     }
 
     public void SendFinalResult()

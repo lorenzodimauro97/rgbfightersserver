@@ -78,20 +78,11 @@ public class NetworkPlayers : MonoBehaviour
 
     private void SendPlayerListToClients()
     {
-        var playerInformation = new List<string>();
+        if(players.Count == 0) return;
 
-        playerInformation.AddRange(from p in players
-            where p.Body
-            select
-                $"{p.Name}&{p.GetPeerId()}&{p.Team}&{p.Color.r}&{p.Color.g}&{p.Color.b}&{p.Body.transform.position.x}&{p.Body.transform.position.y}&{p.Body.transform.position.z}");
-
-        if (playerInformation.Count == 0) return;
-
-        var playerList = string.Join("@", playerInformation);
-
-        //Debug.Log(playerList);
-
-        _networkManager.SendMessageToClient($"PlayersList@{playerList}");
+        var message = players.Aggregate("PlayersList@", (current, p) => current + $"{p.Name}&{p.GetPeerId()}&{p.Team}&{p.Color.r}&{p.Color.g}&{p.Color.b}&{p.Body.transform.position.x}&{p.Body.transform.position.y}&{p.Body.transform.position.z}@");
+        
+        _networkManager.SendMessageToClient(message);
     }
 
     public void MovePlayer(string[] playerData, NetPeer peer)
