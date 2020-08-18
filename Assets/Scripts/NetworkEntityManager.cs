@@ -33,6 +33,8 @@ public class NetworkEntityManager : MonoBehaviour
     {
         while (!_isQuitting)
         {
+            if (!_networkManager.networkMap.gameplayState.Equals(1)) return;
+            
             var tdelay = Task.Delay(delay);
 
             foreach (var e in movableEntities)

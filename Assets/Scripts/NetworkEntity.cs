@@ -40,6 +40,7 @@ public class NetworkEntity : MonoBehaviour
     {
         CheckIfOutOfBounds();
         
+        if (!_networkEntityManager._networkManager.networkMap.gameplayState.Equals(1)) return;
         if (position == transform.position && euler == transform.eulerAngles) return;
         if (entityType == Entity.Health || entityType == Entity.Ammo || entityType == Entity.Gun) return;
 
