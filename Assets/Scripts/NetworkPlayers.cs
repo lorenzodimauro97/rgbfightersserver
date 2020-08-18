@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LiteNetLib;
@@ -52,6 +53,8 @@ public class NetworkPlayers : MonoBehaviour
         else _teamRgbCount++;
 
         players.Add(newPlayer);
+        
+        _networkManager.networkLeaderboard.AddPlayer(newPlayer);
 
         _networkManager.SendMessageToClient(
             $"PlayerInformation@{peer.Id}@{newPlayer.Team}@{playerColor.r}@{playerColor.g}@{playerColor.b}@{spawnPoint.x}@{spawnPoint.y}@{spawnPoint.z}@{_networkManager.networkMap.remainingMatchSeconds}",
@@ -72,6 +75,7 @@ public class NetworkPlayers : MonoBehaviour
         else _teamEteroCount--;
         
         players.RemoveAll(x => x.GetPeer() == peer);
+        _networkManager.networkLeaderboard.RemovePlayer(disconnectedPlayer);
 
         return disconnectedPlayer;
     }
@@ -81,6 +85,8 @@ public class NetworkPlayers : MonoBehaviour
         if(players.Count == 0) return;
 
         var message = players.Aggregate("PlayersList@", (current, p) => current + $"{p.Name}&{p.GetPeerId()}&{p.Team}&{p.Color.r}&{p.Color.g}&{p.Color.b}&{p.Body.transform.position.x}&{p.Body.transform.position.y}&{p.Body.transform.position.z}@");
+        
+        _networkManager.networkLeaderboard.SendLeaderBoard();
         
         _networkManager.SendMessageToClient(message);
     }
@@ -98,19 +104,17 @@ public class NetworkPlayers : MonoBehaviour
         SendPlayerPositionToClients(peer, playerData);
     }
 
-    public async void KillPlayer(string name)
+    public IEnumerator KillPlayer(string name)
     {
-        var delay = Task.Delay(5000);
         var deadPlayer = FindPlayer(name);
 
-        if (!deadPlayer.IsAlive) return;
+        if (!deadPlayer.IsAlive) yield break;
 
         deadPlayer.SetAlive(false);
-        //Debug.Log($"Player {name} è Morto");
 
         _networkManager.SendMessageToClient($"PlayerDead@{deadPlayer.GetPeerId()}");
 
-        await delay;
+        yield return new WaitForSeconds(5);
 
         deadPlayer.SetAlive(true);
 

@@ -63,9 +63,7 @@ public class NetworkFPSManager : MonoBehaviour
 
                 if (hitPlayer.Team == shootingPlayer.Team || hitPlayer.GetPeerId() == peerId) return;
                 
-                var playerPosition = hitPlayer.transform.position; //Non possiamo passare direttamente la posizione dal transform al task! Altrimenti va in errore.
-
-                Task.Run(() => CalculateShootData(hitPlayer, playerPosition, hitPosition, shootingGun.Damage));
+                CalculateShootData(shootingPlayer,hitPlayer, hitPlayer.transform.position, hitPosition, shootingGun.Damage);
             }
             
             else if (h.transform.CompareTag("Entity")) EntityShoot(h.transform.gameObject.GetComponent<NetworkEntity>(), hitDirection, shootingGun);
@@ -98,7 +96,7 @@ public class NetworkFPSManager : MonoBehaviour
         entity.AddForce(direction, gun.EntityShootPower, ForceMode.VelocityChange);
     }
 
-    private void CalculateShootData(Player player, Vector3 playerPosition, Vector3 hitPosition, float damageData)
+    private void CalculateShootData(Player shootingPlayer, Player player, Vector3 playerPosition, Vector3 hitPosition, float damageData)
     {
         if (!player.IsAlive) return;
 
@@ -118,12 +116,10 @@ public class NetworkFPSManager : MonoBehaviour
         if (player.Health <= 0)
         {
             player.Health = 0;
-            _networkManager.networkPlayer.KillPlayer(player.Name);
+            _networkManager.networkLeaderboard.AddPoint(shootingPlayer);
+            StartCoroutine(_networkManager.networkPlayer.KillPlayer(player.Name));
         }
-        else
-        {
-            _networkManager.SendMessageToClient($"PlayerHit@{player.GetPeerId()}@{player.Health}");
-        }
+        else _networkManager.SendMessageToClient($"PlayerHit@{player.GetPeerId()}@{player.Health}");
     }
     
     public void CalculateShootData(Player player, float damage)
@@ -137,7 +133,7 @@ public class NetworkFPSManager : MonoBehaviour
         if (player.Health <= 0)
         {
             player.Health = 0;
-            _networkManager.networkPlayer.KillPlayer(player.Name);
+            StartCoroutine(_networkManager.networkPlayer.KillPlayer(player.Name));
         }
         else
         {

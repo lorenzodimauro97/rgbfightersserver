@@ -57,6 +57,7 @@ public class NetworkMapManager : MonoBehaviour
                 case 0:
                     networkManager.networkPlayer.Clear();
                     networkManager.networkEntity.Clear();
+                    networkManager.networkLeaderboard.Clear();
                     yield return new WaitForSeconds(6);
                     gameplayState = 1;
 

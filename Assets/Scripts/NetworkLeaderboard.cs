@@ -13,8 +13,8 @@ public class NetworkLeaderboard : MonoBehaviour
 
     private void Start()
     {
-        _networkManager = GetComponent<NetworkManager>();
         leaderBoard = new List<LeaderBoard>();
+        _networkManager = GetComponent<NetworkManager>();
     }
 
     public void AddPlayer(Player player)
@@ -27,6 +27,8 @@ public class NetworkLeaderboard : MonoBehaviour
         var selectedPlayer = leaderBoard.Find(p => p.Player == player);
 
         selectedPlayer.KillCount++;
+
+        SendLeaderBoard();
     }
 
     public void RemovePlayer(Player player)
@@ -34,11 +36,11 @@ public class NetworkLeaderboard : MonoBehaviour
         leaderBoard.RemoveAll(x => x.Player.GetPeer() == player.GetPeer());
     }
 
-    public void Clear() => leaderBoard.Clear();
+    public void Clear() => leaderBoard?.Clear();
 
     public void SendLeaderBoard()
     {
-        var message = leaderBoard.Aggregate("PlayerLeaderBoard@", (current, p) => current + $"{p.Player.name}&{p.KillCount}@");
+        var message = leaderBoard.Aggregate("LeaderBoard@", (current, p) => current + $"{p.Player.name}&{p.Player.Team}&{p.KillCount}@");
         
         _networkManager.SendMessageToClient(message);
     }

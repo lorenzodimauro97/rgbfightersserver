@@ -6,6 +6,7 @@ using System.Threading;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class NetworkManager : MonoBehaviour, INetEventListener
 {
@@ -15,6 +16,7 @@ public class NetworkManager : MonoBehaviour, INetEventListener
     public NetworkFPSManager networkFps;
     public NetworkMapManager networkMap;
     public NetworkEntityManager networkEntity;
+    public NetworkLeaderboard networkLeaderboard;
 
     public NetworkPlayers networkPlayer;
 
@@ -35,6 +37,7 @@ public class NetworkManager : MonoBehaviour, INetEventListener
         networkMap = GetComponent<NetworkMapManager>();
         networkFps = GetComponent<NetworkFPSManager>();
         networkEntity = GetComponent<NetworkEntityManager>();
+        networkLeaderboard = GetComponent<NetworkLeaderboard>();
         DontDestroyOnLoad(this);
         CreateServer();
     }
