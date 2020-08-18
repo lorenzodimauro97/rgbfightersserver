@@ -74,8 +74,8 @@ public class NetworkLeaderboard : MonoBehaviour
 
         foreach (var p in leaderBoard)
         {
-            if (p.Player.Team.Contains("etero")) eteroKillCount++;
-            else rgbKillCount++;
+            if (p.Player.Team.Contains("etero")) eteroKillCount+= p.KillCount;
+            else rgbKillCount+= p.KillCount;
         }
 
         int winningTeam;
