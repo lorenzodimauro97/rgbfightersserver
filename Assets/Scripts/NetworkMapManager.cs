@@ -72,7 +72,8 @@ public class NetworkMapManager : MonoBehaviour
                     break;
 
                 case 2:
-                    yield return new WaitForSeconds(3);
+                    Debug.Log("Match is Over, sending final result to clients...");
+                    yield return new WaitForSeconds(15);
                     gameplayState = 0;
                     SceneManager.LoadScene(0);
                     break;
@@ -92,7 +93,6 @@ public class NetworkMapManager : MonoBehaviour
 
         foreach (var s in spawnPointsObjects)
         {
-            Debug.Log("Loaded SpawnPoint");
             spawnPoints.Add(s.transform.position);
         }
     }
@@ -110,6 +110,11 @@ public class NetworkMapManager : MonoBehaviour
                     $"DownloadMap@{mapDownloadLink}@{_mapHash}@{_mapName}@{remainingMatchSeconds}",
                     peer);
                 Debug.Log("Sending map to load...");
+                break;
+            case 2:
+                networkManager.SendMessageToClient(
+                    $"LoadMap@2", peer);
+                networkManager.networkLeaderboard.SendFinalResult(peer);
                 break;
         }
     }
@@ -136,6 +141,12 @@ public class NetworkMapManager : MonoBehaviour
                     $"DownloadMap@{mapDownloadLink}@{_mapHash}");
                 Debug.Log("Sending map to load to all players...");
                 break;
+            case 2:
+                networkManager.SendMessageToClient(
+                    $"LoadMap@2");
+                networkManager.networkLeaderboard.SendFinalResult();
+                break;
+                
         }
     }
 }

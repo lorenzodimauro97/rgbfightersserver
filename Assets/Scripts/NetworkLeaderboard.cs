@@ -66,4 +66,26 @@ public class NetworkLeaderboard : MonoBehaviour
             $"MatchResult@{eteroKillCount}@{rgbKillCount}@{winningTeam}");
 
     }
+    
+    public void SendFinalResult(NetPeer peer)
+    {
+        var eteroKillCount = 0;
+        var rgbKillCount = 0;
+
+        foreach (var p in leaderBoard)
+        {
+            if (p.Player.Team.Contains("etero")) eteroKillCount++;
+            else rgbKillCount++;
+        }
+
+        int winningTeam;
+
+        if (eteroKillCount > rgbKillCount) winningTeam = 1;
+        else if (rgbKillCount > eteroKillCount) winningTeam = 2;
+        else winningTeam = 3;
+        
+        _networkManager.SendMessageToClient(
+            $"MatchResult@{eteroKillCount}@{rgbKillCount}@{winningTeam}", peer);
+
+    }
 }
