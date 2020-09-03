@@ -36,7 +36,7 @@ public class NetPlayer : MonoBehaviour
         _animator.SetInteger(LegType, int.Parse(dataArray[10]));
         _animator.SetInteger(ArmType, int.Parse(dataArray[11]));
 
-        if (newPosition.y > -1000 || !_player.IsAlive) return;
+        if (newPosition.y > -200 || !_player.IsAlive) return;
         StartCoroutine(GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkPlayers>()
                 .KillPlayer(GetComponent<Player>().name));
     }

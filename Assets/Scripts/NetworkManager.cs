@@ -101,10 +101,8 @@ public class NetworkManager : MonoBehaviour, INetEventListener
     public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
     {
         var disconnectedPlayer = networkPlayer.RemovePlayer(peer);
-        
-        if(!disconnectedPlayer) Debug.LogError("Disconnecting a player that doesn't exist! MAJOR BUG!");
-        
-        Destroy(disconnectedPlayer.gameObject);
+
+        if (!disconnectedPlayer) return;
 
         SendPeerDisconnectionToClients(disconnectedPlayer);
     }
@@ -159,6 +157,8 @@ public class NetworkManager : MonoBehaviour, INetEventListener
     private void SendPeerDisconnectionToClients(Player player)
     {
         SendMessageToClient($"PlayerDisconnected@{player.GetPeerId()}");
+        
+        networkLeaderboard.SendLeaderBoard();
 
         SendChatMessage($"ChatMessage@Server:{player.Name} Si è disconnesso!");
     }

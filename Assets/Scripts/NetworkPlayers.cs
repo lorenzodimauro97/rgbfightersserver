@@ -33,7 +33,7 @@ public class NetworkPlayers : MonoBehaviour
         Debug.Log($"Peer {playerData[1]} connesso!");
 
         _networkManager.networkMap.SendMatchStatus(peer);
-        _networkManager.SendChatMessage($"ChatMessage@Server:{playerData[1]} Si è Connesso!");
+        
     }
 
     public void SpawnPlayer(string[] playerData, NetPeer peer)
@@ -63,6 +63,8 @@ public class NetworkPlayers : MonoBehaviour
         SendPlayerListToClients();
 
         _networkManager.networkEntity.SendClientEntitiesStatus(peer);
+        
+        _networkManager.SendChatMessage($"ChatMessage@Server:{playerData[1]} Si è Connesso!");
     }
 
     public Player RemovePlayer(NetPeer peer)
@@ -71,7 +73,7 @@ public class NetworkPlayers : MonoBehaviour
 
         if (!disconnectedPlayer) return null;
 
-        if (disconnectedPlayer.Team == "rgb") _teamRgbCount--;
+            if (disconnectedPlayer.Team == "rgb") _teamRgbCount--;
         else _teamEteroCount--;
         
         players.RemoveAll(x => x.GetPeer() == peer);
