@@ -80,7 +80,7 @@ public class NetworkFPSManager : MonoBehaviour
             float.Parse(data[5]),
             float.Parse(data[6]));
         
-        Debug.DrawRay(hitPosition, hitDirection * 10, Color.green, 100);
+        //Debug.DrawRay(hitPosition, hitDirection * 10, Color.green, 100);
         
         var shootingGun = gunTypes.Find(x => x.Id == data[7]);
 

@@ -53,6 +53,6 @@ public class MessageHandler : MonoBehaviour
     {
         writer.Reset();
         writer.Put(data);
-        manager.SendToAll(writer, DeliveryMethod.ReliableOrdered);
+        manager.SendToAll(writer, DeliveryMethod.Unreliable);
     }
 }

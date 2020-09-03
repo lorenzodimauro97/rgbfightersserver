@@ -65,7 +65,7 @@ public class NetworkMapManager : MonoBehaviour
                     break;
 
                 case 1:
-                    remainingMatchSeconds = 600;
+                    remainingMatchSeconds = 6000;
                     StartCoroutine(CountDownMatch());
                     yield return new WaitForSeconds(remainingMatchSeconds);
                     gameplayState = 2;

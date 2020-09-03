@@ -7,10 +7,12 @@ public class NetPlayer : MonoBehaviour
 
     public GameObject head;
     private Animator _animator;
+    private Player _player;
 
     private void Start()
     {
         _animator = GetComponent<Animator>();
+        _player = GetComponent<Player>();
     }
 
     public void MovePlayer(string[] dataArray)
@@ -27,15 +29,15 @@ public class NetPlayer : MonoBehaviour
             float.Parse(dataArray[8]),
             float.Parse(dataArray[9]));
 
-        if (newPosition.y < -1000)
-            GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkPlayers>()
-                .KillPlayer(GetComponent<Player>().name);
-
         transform.position = newPosition;
         transform.eulerAngles = newEulerAngles;
         head.transform.eulerAngles = headEulerAngles;
 
         _animator.SetInteger(LegType, int.Parse(dataArray[10]));
         _animator.SetInteger(ArmType, int.Parse(dataArray[11]));
+
+        if (newPosition.y > -1000 || !_player.IsAlive) return;
+        StartCoroutine(GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkPlayers>()
+                .KillPlayer(GetComponent<Player>().name));
     }
 }
