@@ -30,13 +30,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4938842956010652041}
-  m_LocalRotation: {x: -0.7069834, y: 0, z: 0, w: 0.7072302}
-  m_LocalPosition: {x: -0.573, y: 0.528, z: -0.2301}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: -89.98, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8677944697564157078
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -118,10 +118,10 @@ MonoBehaviour:
   entityType: 4
   gunId: 
   entityId: 
-  damageAmount: 30
+  damageAmount: 70
   euler: {x: 0, y: 0, z: 0}
   position: {x: 0, y: 0, z: 0}
-  _networkEntityManager: {fileID: 0}
+  networkEntityManager: {fileID: 0}
 --- !u!114 &5908413651419839726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -145,8 +145,8 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.00029999996
-  m_Center: {x: -4.3655746e-11, y: -3.0559016e-10, z: -6.2573224e-10}
+  m_Radius: 0.0012
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!135 &6312009165165931739
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -158,5 +158,5 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.0012
-  m_Center: {x: -4.3655746e-11, y: -3.0559016e-10, z: -6.2573224e-10}
+  m_Radius: 0.002
+  m_Center: {x: 0, y: 0, z: 0}
