@@ -1,5 +1,6 @@
 ﻿using LiteNetLib;
 using UnityEngine;
+using Random = System.Random;
 
 [RequireComponent(typeof(Rigidbody))]
 public class NetworkEntity : MonoBehaviour
@@ -10,7 +11,8 @@ public class NetworkEntity : MonoBehaviour
         Gun,
         Movable,
         Health,
-        Damage
+        Damage,
+        Ragdoll
     }
 
     public Entity entityType;
@@ -18,34 +20,38 @@ public class NetworkEntity : MonoBehaviour
     public string entityId;
 
     public int damageAmount;
-    
+
     public Vector3 euler;
     public Vector3 position;
 
+    public NetworkEntityManager networkEntityManager;
+
     private Rigidbody _rigidbody;
-    
-    public NetworkEntityManager _networkEntityManager;
+
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
-        
-        _networkEntityManager = GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkEntityManager>();
-        _networkEntityManager.AddEntity(this);
 
-        if (entityType == Entity.Movable || entityType == Entity.Damage)
-            _networkEntityManager.movableEntities.Add(GetComponent<NetworkEntity>());
+        networkEntityManager = GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkEntityManager>();
+
+        networkEntityManager.entities.Add(this);
+
+        if (entityType == Entity.Movable || entityType == Entity.Damage || entityType == Entity.Ragdoll)
+            networkEntityManager.movableEntities.Add(this);
     }
 
     private void FixedUpdate()
     {
         CheckIfOutOfBounds();
-        
-        if (!_networkEntityManager._networkManager.networkMap.gameplayState.Equals(1)) return;
-        if (position == transform.position && euler == transform.eulerAngles) return;
-        if (entityType == Entity.Health || entityType == Entity.Ammo || entityType == Entity.Gun) return;
 
-        position = transform.position;
-        euler = transform.eulerAngles;
+        var transform1 = transform;
+        
+        if (!networkEntityManager.networkManager.networkMap.gameplayState.Equals(1)) return;
+        if (position == transform1.position && euler == transform1.eulerAngles) return;
+        if (entityType == Entity.Health || entityType == Entity.Ammo || entityType == Entity.Gun) return;
+        
+        position = transform1.position;
+        euler = transform1.eulerAngles;
 
         var message = $"EntityPosition@{name}@{entityId}" +
                       $"@{position.x}" +
@@ -58,19 +64,6 @@ public class NetworkEntity : MonoBehaviour
         SendNewEntityData(message);
     }
 
-    private void CheckIfOutOfBounds()
-    {
-        if (!(transform.position.y < -1500)) return;
-        
-        _rigidbody.velocity = Vector3.zero;
-            
-        var spawnPoint =
-            _networkEntityManager._networkManager.networkMap.spawnPoints[
-                new System.Random().Next(0,_networkEntityManager._networkManager.networkMap.spawnPoints.Count)];
-            
-        transform.position = spawnPoint;
-    }
-    
     public void OnCollisionStay(Collision other)
     {
         if (!other.transform.CompareTag("Player")) return;
@@ -91,6 +84,9 @@ public class NetworkEntity : MonoBehaviour
             case Entity.Movable:
                 MovableEntityTrigger(other);
                 break;
+            case Entity.Ragdoll:
+                MovableEntityTrigger(other);
+                break;
             case Entity.Health:
                 HealthEntityTrigger(other);
                 break;
@@ -100,17 +96,30 @@ public class NetworkEntity : MonoBehaviour
         }
     }
 
+    private void CheckIfOutOfBounds()
+    {
+        if (!(transform.position.y < -500)) return;
+
+        _rigidbody.velocity = Vector3.zero;
+
+        var spawnPoint =
+            networkEntityManager.networkManager.networkMap.spawnPoints[
+                new Random().Next(0, networkEntityManager.networkManager.networkMap.spawnPoints.Count)];
+
+        transform.position = spawnPoint;
+    }
+
     private void HealthEntityTrigger(Component other)
     {
         if (!other.CompareTag("Player")) return;
-        
+
         var peer = other.gameObject.GetComponent<Player>().GetPeer();
 
-        var message = $"HealthAdd@{Random.Range(10, 70)}";
+        var message = $"HealthAdd@{UnityEngine.Random.Range(10, 70)}";
 
         SendNewEntityData(message, peer);
 
-        Invoke(nameof(EnableEntity), Random.Range(10, 60));
+        Invoke(nameof(EnableEntity), UnityEngine.Random.Range(10, 60));
 
         DisableEntity();
     }
@@ -125,7 +134,7 @@ public class NetworkEntity : MonoBehaviour
 
         SendNewEntityData(message, peer);
 
-        Invoke(nameof(EnableEntity), Random.Range(20, 120));
+        Invoke(nameof(EnableEntity), UnityEngine.Random.Range(20, 120));
 
         DisableEntity();
     }
@@ -138,7 +147,7 @@ public class NetworkEntity : MonoBehaviour
 
         var peer = player.GetPeer();
 
-        var amount = _networkEntityManager._networkManager.networkFps.gunTypes.Find(x => x.Id == player.GetGunIndex())
+        var amount = networkEntityManager.networkManager.networkFps.gunTypes.Find(x => x.Id == player.GunIndex)
             .ReloadAmount;
 
         var message = $"AmmoAdd@{amount}";
@@ -153,21 +162,19 @@ public class NetworkEntity : MonoBehaviour
     private void DamageEntityTrigger(Component other)
     {
         if (!other.CompareTag("Player")) return;
-        
+
         var player = other.gameObject.GetComponent<Player>();
 
-        _networkEntityManager._networkManager.networkFps.CalculateShootData(player, damageAmount);
-        
-        SendNewEntityData($"EntityDespawn@{entityId}");
+        networkEntityManager.networkManager.networkFps.CalculateShootData(player, damageAmount);
 
-        _networkEntityManager.RemoveEntity(this);
+        networkEntityManager.RemoveEntity(this);
     }
 
     private void DisableEntity()
     {
         gameObject.SetActive(false);
 
-        var message = $"EntitySetActive@{entityId}@False";
+        var message = $"EntitySetActive@{name}@{entityId}@False";
 
         SendNewEntityData(message);
     }
@@ -176,7 +183,7 @@ public class NetworkEntity : MonoBehaviour
     {
         gameObject.SetActive(true);
 
-        var message = $"EntitySetActive@{entityId}@True";
+        var message = $"EntitySetActive@{name}@{entityId}@True";
 
         SendNewEntityData(message);
     }
@@ -187,9 +194,11 @@ public class NetworkEntity : MonoBehaviour
 
         var player = other.gameObject.GetComponent<Player>();
 
-        if (_rigidbody.velocity.magnitude > 7) _networkEntityManager._networkManager.networkFps.CalculateShootData(player, (_rigidbody.velocity.magnitude * _rigidbody.mass) / 10);
+        if (_rigidbody.velocity.magnitude > 7)
+            networkEntityManager.networkManager.networkFps.CalculateShootData(player,
+                _rigidbody.velocity.magnitude * _rigidbody.mass / 10);
 
-            var force = (transform.position - other.transform.position) * 2;
+        var force = (transform.position - other.transform.position) * 2;
         AddForce(force);
     }
 
@@ -205,19 +214,14 @@ public class NetworkEntity : MonoBehaviour
         direction.Normalize();
         _rigidbody.AddForce(direction * magnitude, forceMode);
     }
-
-    public Vector3 GetVelocity()
-    {
-        return _rigidbody.velocity;
-    }
-
+    
     public void SendNewEntityData(string message)
     {
-        _networkEntityManager.SendMessageToClient(message);
+        networkEntityManager.SendMessageToClient(message);
     }
 
     private void SendNewEntityData(string message, NetPeer peer)
     {
-        _networkEntityManager.SendMessageToClient(message, peer);
+        networkEntityManager.SendMessageToClient(message, peer);
     }
 }

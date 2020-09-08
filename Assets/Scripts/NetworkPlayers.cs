@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using LiteNetLib;
 using UnityEngine;
 
@@ -11,11 +10,11 @@ public class NetworkPlayers : MonoBehaviour
 
     public List<Player> players;
     private NetworkManager _networkManager;
+    private int _teamEteroCount;
+
+    private int _teamRgbCount;
 
     private bool _teamSelect;
-
-    private int _teamRgbCount = 0;
-    private int _teamEteroCount = 0;
 
 
     private void Start()
@@ -33,7 +32,6 @@ public class NetworkPlayers : MonoBehaviour
         Debug.Log($"Peer {playerData[1]} connesso!");
 
         _networkManager.networkMap.SendMatchStatus(peer);
-        
     }
 
     public void SpawnPlayer(string[] playerData, NetPeer peer)
@@ -46,14 +44,14 @@ public class NetworkPlayers : MonoBehaviour
         var newPlayer = Instantiate(playerObject).AddComponent<Player>();
 
         _teamSelect = _teamRgbCount > _teamEteroCount;
-        
+
         newPlayer.Spawn(playerData[1], _teamSelect ? "etero" : "rgb", peer, spawnPoint, playerColor);
 
         if (_teamSelect) _teamEteroCount++;
         else _teamRgbCount++;
 
         players.Add(newPlayer);
-        
+
         _networkManager.networkLeaderboard.AddPlayer(newPlayer);
 
         _networkManager.SendMessageToClient(
@@ -63,7 +61,7 @@ public class NetworkPlayers : MonoBehaviour
         SendPlayerListToClients();
 
         _networkManager.networkEntity.SendClientEntitiesStatus(peer);
-        
+
         _networkManager.SendChatMessage($"ChatMessage@Server:{playerData[1]} Si è Connesso!");
     }
 
@@ -73,23 +71,28 @@ public class NetworkPlayers : MonoBehaviour
 
         if (!disconnectedPlayer) return null;
 
-            if (disconnectedPlayer.Team == "rgb") _teamRgbCount--;
+        if (disconnectedPlayer.Team == "rgb") _teamRgbCount--;
         else _teamEteroCount--;
-        
+
         players.RemoveAll(x => x.GetPeer() == peer);
         _networkManager.networkLeaderboard.RemovePlayer(disconnectedPlayer);
+
+        Destroy(disconnectedPlayer.Body);
 
         return disconnectedPlayer;
     }
 
     private void SendPlayerListToClients()
     {
-        if(players.Count == 0) return;
+        if (players.Count == 0) return;
 
-        var message = players.Aggregate("PlayersList@", (current, p) => current + $"{p.Name}&{p.GetPeerId()}&{p.Team}&{p.Color.r}&{p.Color.g}&{p.Color.b}&{p.Body.transform.position.x}&{p.Body.transform.position.y}&{p.Body.transform.position.z}@");
-        
+        var message = players.Aggregate("PlayersList@",
+            (current, p) =>
+                current +
+                $"{p.Name}&{p.GetPeerId()}&{p.Team}&{p.Color.r}&{p.Color.g}&{p.Color.b}&{p.Body.transform.position.x}&{p.Body.transform.position.y}&{p.Body.transform.position.z}&{p.GunIndex}@");
+
         _networkManager.networkLeaderboard.SendLeaderBoard();
-        
+
         _networkManager.SendMessageToClient(message);
     }
 
@@ -115,6 +118,8 @@ public class NetworkPlayers : MonoBehaviour
         deadPlayer.SetAlive(false);
 
         _networkManager.SendMessageToClient($"PlayerDead@{deadPlayer.GetPeerId()}");
+        
+        _networkManager.networkEntity.SpawnRagdoll(deadPlayer);
 
         yield return new WaitForSeconds(5);
 
@@ -147,7 +152,7 @@ public class NetworkPlayers : MonoBehaviour
     public void ChangePlayerGunIndex(string index, NetPeer peer)
     {
         var player = FindPlayer(peer);
-        player.SetGunIndex(index);
+        player.GunIndex = index;
         _networkManager.SendMessageToClient($"GunChange@{player.GetPeerId()}@{index}");
     }
 
