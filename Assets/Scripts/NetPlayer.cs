@@ -2,16 +2,13 @@
 
 public class NetPlayer : MonoBehaviour
 {
-    private static readonly int LegType = Animator.StringToHash("LegType");
-    private static readonly int ArmType = Animator.StringToHash("ArmType");
-
     public GameObject head;
-    private Animator _animator;
     private Player _player;
+    private string ArmType;
+    private string LegType;
 
     private void Start()
     {
-        _animator = GetComponent<Animator>();
         _player = GetComponent<Player>();
     }
 
@@ -33,11 +30,11 @@ public class NetPlayer : MonoBehaviour
         transform.eulerAngles = newEulerAngles;
         head.transform.eulerAngles = headEulerAngles;
 
-        _animator.SetInteger(LegType, int.Parse(dataArray[10]));
-        _animator.SetInteger(ArmType, int.Parse(dataArray[11]));
+        LegType = dataArray[10];
+        ArmType = dataArray[11];
 
         if (newPosition.y > -200 || !_player.IsAlive) return;
         StartCoroutine(GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkPlayers>()
-                .KillPlayer(GetComponent<Player>().name));
+            .KillPlayer(GetComponent<Player>().name));
     }
 }
