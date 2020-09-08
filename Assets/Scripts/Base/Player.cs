@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
     public string Name { get; private set; }
     public NetPlayer NetPlayer { get; private set; }
     public bool IsAlive { get; private set; }
-    public string GunIndex { get; private set; }
+    public string GunIndex { get; set; }
 
     public void Spawn(string playerName, string team, NetPeer peer, Vector3 spawnPoint, Color playerColor)
     {
@@ -45,16 +45,6 @@ public class Player : MonoBehaviour
     public NetPeer GetPeer()
     {
         return Peer;
-    }
-
-    public string GetGunIndex()
-    {
-        return GunIndex;
-    }
-
-    public void SetGunIndex(string index)
-    {
-        GunIndex = index;
     }
 
     public void Dispose()

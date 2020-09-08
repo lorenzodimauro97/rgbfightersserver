@@ -145,10 +145,7 @@ namespace LiteNetLib
         {
             //prepare outgoing data
             var networkIp = NetUtils.GetLocalIp(LocalAddrType.IPv4);
-            if (string.IsNullOrEmpty(networkIp))
-            {
-                networkIp = NetUtils.GetLocalIp(LocalAddrType.IPv6);
-            }
+            if (string.IsNullOrEmpty(networkIp)) networkIp = NetUtils.GetLocalIp(LocalAddrType.IPv6);
 
             Send(
                 new NatIntroduceRequestPacket
