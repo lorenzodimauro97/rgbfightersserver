@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using LiteNetLib;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class NetworkFPSManager : MonoBehaviour
@@ -40,8 +40,8 @@ public class NetworkFPSManager : MonoBehaviour
     {
         var gun = gunTypes.Find(x => x.Id == gunIndex);
 
-        var entity = _networkManager.networkEntity.SpawnEntity(hitPosition, entityName);
-        
+        var entity = _networkManager.networkEntity.SpawnEntity(hitPosition, Quaternion.identity, entityName);
+
         entity.GetComponent<Rigidbody>().AddForce(hitDirection * gun.EntityBulletPower, ForceMode.VelocityChange);
     }
 
@@ -55,18 +55,22 @@ public class NetworkFPSManager : MonoBehaviour
 
         foreach (var h in hits)
         {
-            if(!h.transform) continue;
+            if (!h.transform) continue;
             //Debug.Log(h.transform.name);
             if (h.transform.CompareTag("Player"))
             {
                 var hitPlayer = h.transform.GetComponent<Player>();
 
                 if (hitPlayer.Team == shootingPlayer.Team || hitPlayer.GetPeerId() == peerId) return;
-                
-                CalculateShootData(shootingPlayer,hitPlayer, hitPlayer.transform.position, hitPosition, shootingGun.Damage);
+
+                CalculateShootData(shootingPlayer, hitPlayer, hitPlayer.transform.position, hitPosition,
+                    shootingGun.Damage);
             }
-            
-            else if (h.transform.CompareTag("Entity")) EntityShoot(h.transform.gameObject.GetComponent<NetworkEntity>(), hitDirection, shootingGun);
+
+            else if (h.transform.CompareTag("Entity"))
+            {
+                EntityShoot(h.transform.gameObject.GetComponent<NetworkEntity>(), hitDirection, shootingGun);
+            }
         }
     }
 
@@ -79,15 +83,15 @@ public class NetworkFPSManager : MonoBehaviour
         var hitDirection = new Vector3(float.Parse(data[4]),
             float.Parse(data[5]),
             float.Parse(data[6]));
-        
+
         //Debug.DrawRay(hitPosition, hitDirection * 10, Color.green, 100);
-        
+
         var shootingGun = gunTypes.Find(x => x.Id == data[7]);
 
         var shootingPlayer = _networkManager.networkPlayer.FindPlayer(peer);
-        
+
         _networkManager.SendMessageToClient($"PlayerShoot@{peer.Id}");
-        
+
         Shoot(hitPosition, hitDirection, shootingGun, shootingPlayer, peer.Id);
     }
 
@@ -96,7 +100,8 @@ public class NetworkFPSManager : MonoBehaviour
         entity.AddForce(direction, gun.EntityShootPower, ForceMode.VelocityChange);
     }
 
-    private void CalculateShootData(Player shootingPlayer, Player player, Vector3 playerPosition, Vector3 hitPosition, float damageData)
+    private void CalculateShootData(Player shootingPlayer, Player player, Vector3 playerPosition, Vector3 hitPosition,
+        float damageData)
     {
         if (!player.IsAlive) return;
 
@@ -119,9 +124,12 @@ public class NetworkFPSManager : MonoBehaviour
             _networkManager.networkLeaderboard.AddPoint(shootingPlayer);
             StartCoroutine(_networkManager.networkPlayer.KillPlayer(player.Name));
         }
-        else _networkManager.SendMessageToClient($"PlayerHit@{player.GetPeerId()}@{player.Health}");
+        else
+        {
+            _networkManager.SendMessageToClient($"PlayerHit@{player.GetPeerId()}@{player.Health}");
+        }
     }
-    
+
     public void CalculateShootData(Player player, float damage)
     {
         if (!player.IsAlive) return;
@@ -140,5 +148,4 @@ public class NetworkFPSManager : MonoBehaviour
             _networkManager.SendMessageToClient($"PlayerHit@{player.GetPeerId()}@{player.Health}");
         }
     }
-    
 }

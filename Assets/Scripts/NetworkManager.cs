@@ -6,7 +6,6 @@ using System.Threading;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class NetworkManager : MonoBehaviour, INetEventListener
 {
@@ -157,7 +156,7 @@ public class NetworkManager : MonoBehaviour, INetEventListener
     private void SendPeerDisconnectionToClients(Player player)
     {
         SendMessageToClient($"PlayerDisconnected@{player.GetPeerId()}");
-        
+
         networkLeaderboard.SendLeaderBoard();
 
         SendChatMessage($"ChatMessage@Server:{player.Name} Si è disconnesso!");

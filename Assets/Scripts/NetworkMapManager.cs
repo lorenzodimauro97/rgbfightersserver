@@ -14,6 +14,8 @@ public class NetworkMapManager : MonoBehaviour
     public NetworkManager networkManager;
 
     public List<Vector3> spawnPoints;
+
+    public int remainingMatchSeconds;
     private AssetBundle _map;
 
     private string _mapHash;
@@ -21,8 +23,6 @@ public class NetworkMapManager : MonoBehaviour
     private string _mapName;
 
     private string _mapPath;
-
-    public int remainingMatchSeconds;
 
     public void StartMapManager()
     {
@@ -91,10 +91,7 @@ public class NetworkMapManager : MonoBehaviour
 
         var spawnPointsObjects = GameObject.FindGameObjectsWithTag("SpawnPoint");
 
-        foreach (var s in spawnPointsObjects)
-        {
-            spawnPoints.Add(s.transform.position);
-        }
+        foreach (var s in spawnPointsObjects) spawnPoints.Add(s.transform.position);
     }
 
     public void SendMatchStatus(NetPeer peer)
@@ -102,7 +99,7 @@ public class NetworkMapManager : MonoBehaviour
         switch (gameplayState)
         {
             case 0:
-                networkManager.SendMessageToClient($"LoadMap@1", peer);
+                networkManager.SendMessageToClient("LoadMap@1", peer);
                 break;
 
             case 1:
@@ -113,17 +110,17 @@ public class NetworkMapManager : MonoBehaviour
                 break;
             case 2:
                 networkManager.SendMessageToClient(
-                    $"LoadMap@2", peer);
+                    "LoadMap@2", peer);
                 networkManager.networkLeaderboard.SendFinalResult(peer);
                 break;
         }
     }
 
-    IEnumerator CountDownMatch()
+    private IEnumerator CountDownMatch()
     {
         remainingMatchSeconds--;
         yield return new WaitForSeconds(1);
-        if(gameplayState.Equals(1)) 
+        if (gameplayState.Equals(1))
             StartCoroutine(CountDownMatch());
     }
 
@@ -133,7 +130,7 @@ public class NetworkMapManager : MonoBehaviour
         {
             case 0:
                 networkManager.SendMessageToClient(
-                    $"LoadMap@1");
+                    "LoadMap@1");
                 break;
 
             case 1:
@@ -143,10 +140,9 @@ public class NetworkMapManager : MonoBehaviour
                 break;
             case 2:
                 networkManager.SendMessageToClient(
-                    $"LoadMap@2");
+                    "LoadMap@2");
                 networkManager.networkLeaderboard.SendFinalResult();
                 break;
-                
         }
     }
 }

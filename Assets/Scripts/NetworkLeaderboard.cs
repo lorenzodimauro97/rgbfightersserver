@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using LiteNetLib;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class NetworkLeaderboard : MonoBehaviour
 {
-    private NetworkManager _networkManager;
     public List<LeaderBoard> leaderBoard;
+    private NetworkManager _networkManager;
 
     private void Start()
     {
@@ -36,12 +33,16 @@ public class NetworkLeaderboard : MonoBehaviour
         leaderBoard.RemoveAll(x => x.Player.GetPeer() == player.GetPeer());
     }
 
-    public void Clear() => leaderBoard?.Clear();
+    public void Clear()
+    {
+        leaderBoard?.Clear();
+    }
 
     public void SendLeaderBoard()
     {
-        var message = leaderBoard.Aggregate("LeaderBoard@", (current, p) => current + $"{p.Player.name}&{p.Player.Team}&{p.KillCount}@");
-        
+        var message = leaderBoard.Aggregate("LeaderBoard@",
+            (current, p) => current + $"{p.Player.name}&{p.Player.Team}&{p.KillCount}@");
+
         _networkManager.SendMessageToClient(message);
     }
 
@@ -51,41 +52,35 @@ public class NetworkLeaderboard : MonoBehaviour
         var rgbKillCount = 0;
 
         foreach (var p in leaderBoard)
-        {
             if (p.Player.Team.Contains("etero")) eteroKillCount++;
             else rgbKillCount++;
-        }
 
         int winningTeam;
 
         if (eteroKillCount > rgbKillCount) winningTeam = 1;
         else if (rgbKillCount > eteroKillCount) winningTeam = 2;
         else winningTeam = 3;
-        
+
         _networkManager.SendMessageToClient(
             $"MatchResult@{eteroKillCount}@{rgbKillCount}@{winningTeam}");
-
     }
-    
+
     public void SendFinalResult(NetPeer peer)
     {
         var eteroKillCount = 0;
         var rgbKillCount = 0;
 
         foreach (var p in leaderBoard)
-        {
-            if (p.Player.Team.Contains("etero")) eteroKillCount+= p.KillCount;
-            else rgbKillCount+= p.KillCount;
-        }
+            if (p.Player.Team.Contains("etero")) eteroKillCount += p.KillCount;
+            else rgbKillCount += p.KillCount;
 
         int winningTeam;
 
         if (eteroKillCount > rgbKillCount) winningTeam = 1;
         else if (rgbKillCount > eteroKillCount) winningTeam = 2;
         else winningTeam = 3;
-        
+
         _networkManager.SendMessageToClient(
             $"MatchResult@{eteroKillCount}@{rgbKillCount}@{winningTeam}", peer);
-
     }
 }
