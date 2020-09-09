@@ -28,6 +28,15 @@ public class NetworkLeaderboard : MonoBehaviour
         SendLeaderBoard();
     }
 
+    public void RemovePoint(Player player)
+    {
+        var selectedPlayer = leaderBoard.Find(p => p.Player == player);
+
+        selectedPlayer.KillCount--;
+
+        SendLeaderBoard();
+    }
+    
     public void RemovePlayer(Player player)
     {
         leaderBoard.RemoveAll(x => x.Player.GetPeer() == player.GetPeer());

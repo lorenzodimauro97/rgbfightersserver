@@ -23,8 +23,10 @@ public class NetworkFPSManager : MonoBehaviour
         _networkManager = GetComponent<NetworkManager>();
     }
 
-    public void ParseEntityShootData(string[] data)
+    public void ParseEntityShootData(string[] data, NetPeer peer)
     {
+        var player = _networkManager.networkPlayer.FindPlayer(peer);
+        
         var hitPosition = new Vector3(float.Parse(data[1]),
             float.Parse(data[2]),
             float.Parse(data[3]));
@@ -33,14 +35,14 @@ public class NetworkFPSManager : MonoBehaviour
             float.Parse(data[5]),
             float.Parse(data[6]));
 
-        EntityShoot(hitPosition, hitDirection, data[7], data[8]);
+        EntityShoot(hitPosition, hitDirection, data[7], data[8], player);
     }
 
-    private void EntityShoot(Vector3 hitPosition, Vector3 hitDirection, string gunIndex, string entityName)
+    private void EntityShoot(Vector3 hitPosition, Vector3 hitDirection, string gunIndex, string entityName, Player player)
     {
         var gun = gunTypes.Find(x => x.Id == gunIndex);
 
-        var entity = _networkManager.networkEntity.SpawnEntity(hitPosition, Quaternion.identity, entityName);
+        var entity = _networkManager.networkEntity.SpawnEntity(hitPosition, Quaternion.identity, entityName, player);
 
         entity.GetComponent<Rigidbody>().AddForce(hitDirection * gun.EntityBulletPower, ForceMode.VelocityChange);
     }
@@ -56,7 +58,6 @@ public class NetworkFPSManager : MonoBehaviour
         foreach (var h in hits)
         {
             if (!h.transform) continue;
-            //Debug.Log(h.transform.name);
             if (h.transform.CompareTag("Player"))
             {
                 var hitPlayer = h.transform.GetComponent<Player>();
@@ -130,18 +131,22 @@ public class NetworkFPSManager : MonoBehaviour
         }
     }
 
-    public void CalculateShootData(Player player, float damage)
+    public void CalculateShootData(Player player, float damage, Player shootingPlayer)
     {
-        if (!player.IsAlive) return;
+        if (!player.IsAlive || shootingPlayer == player) return;
 
         player.Health -= damage;
-
-        //Debug.Log($"Player {player.Name} received {damage} damage! {player.Health} health left");
 
         if (player.Health <= 0)
         {
             player.Health = 0;
+            
             StartCoroutine(_networkManager.networkPlayer.KillPlayer(player.Name));
+
+            if (shootingPlayer != null) return;
+            
+            if (player.Team != shootingPlayer.Team) _networkManager.networkLeaderboard.AddPoint(shootingPlayer);
+            else _networkManager.networkLeaderboard.RemovePoint(shootingPlayer);
         }
         else
         {
