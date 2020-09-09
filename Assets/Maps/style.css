@@ -40,7 +40,10 @@ width:614px;
 overflow:hidden;
 }
 
-
+#object 
+{
+    width: 100%;
+}
 
 
 #titlebar h1
@@ -146,7 +149,6 @@ color:#E2E2E0;
 {
 color:#BCBCBC;
 }
-
 
 
 html, body {

@@ -737,6 +737,7 @@ GameObject:
   - component: {fileID: 3770667605323913584}
   - component: {fileID: 5985273094122802223}
   - component: {fileID: 4634586770169209964}
+  - component: {fileID: -6242303772670443833}
   m_Layer: 0
   m_Name: Net Ragdoll
   m_TagString: Untagged
@@ -795,6 +796,18 @@ MonoBehaviour:
   euler: {x: 0, y: 0, z: 0}
   position: {x: 0, y: 0, z: 0}
   networkEntityManager: {fileID: 0}
+--- !u!114 &-6242303772670443833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3770667605323913781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bde037de4ae74cdd8d060b9549b137f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3770667605323913782
 GameObject:
   m_ObjectHideFlags: 0
