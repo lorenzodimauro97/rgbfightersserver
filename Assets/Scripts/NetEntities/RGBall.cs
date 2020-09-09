@@ -8,10 +8,10 @@ public class RGBall : MonoBehaviour
     private void Start()
     {
         _entity = GetComponent<NetworkEntity>();
-        StartCoroutine(SelfDestroy(10));
+        StartCoroutine(SelfDestroy(3.5f));
     }
 
-    private IEnumerator SelfDestroy(int time)
+    private IEnumerator SelfDestroy(float time)
     {
         yield return new WaitForSeconds(time);
         _entity.networkEntityManager.RemoveEntity(_entity);
