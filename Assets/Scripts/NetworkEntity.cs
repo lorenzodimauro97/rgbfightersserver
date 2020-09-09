@@ -1,4 +1,5 @@
-﻿using LiteNetLib;
+﻿using System;
+using LiteNetLib;
 using UnityEngine;
 using Random = System.Random;
 
@@ -94,6 +95,11 @@ public class NetworkEntity : MonoBehaviour
                 DamageEntityTrigger(other);
                 break;
         }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        OnTriggerEnter(other);
     }
 
     private void CheckIfOutOfBounds()
