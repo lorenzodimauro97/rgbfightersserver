@@ -13,7 +13,8 @@ public class NetworkFPSManager : MonoBehaviour
     public List<Gun> gunTypes = new List<Gun>
     {
         new Gun(20, 0.75f, "0", 300, 10, 50, 0),
-        new Gun(70, 2.0f, "1", 70, 3, 200, 60)
+        new Gun(70, 2.0f, "1", 70, 3, 200, 60),
+        new Gun(15, 0.2f, "2", 350, 50, 75, 0)
     };
 
     private NetworkManager _networkManager;
@@ -51,21 +52,19 @@ public class NetworkFPSManager : MonoBehaviour
     {
         var hits = new RaycastHit[6];
 
-        //Starts RaycastNonAlloc and then goes through it looking for players or entities 
-
-        var size = Physics.RaycastNonAlloc(hitPosition, hitDirection, hits, shootingGun.Distance);
+        Physics.RaycastNonAlloc(hitPosition, hitDirection, hits, shootingGun.Distance);
 
         foreach (var h in hits)
         {
-            if (!h.transform) continue;
+            if (!h.transform || !h.transform.CompareTag("Player")) continue;
+            
             if (h.transform.CompareTag("Player"))
             {
                 var hitPlayer = h.transform.GetComponent<Player>();
 
                 if (hitPlayer.Team == shootingPlayer.Team || hitPlayer.GetPeerId() == peerId) return;
 
-                CalculateShootData(shootingPlayer, hitPlayer, hitPlayer.transform.position, hitPosition,
-                    shootingGun.Damage);
+                CalculateShootData(shootingPlayer, hitPlayer, shootingGun.Damage);
             }
 
             else if (h.transform.CompareTag("Entity"))
@@ -85,8 +84,6 @@ public class NetworkFPSManager : MonoBehaviour
             float.Parse(data[5]),
             float.Parse(data[6]));
 
-        //Debug.DrawRay(hitPosition, hitDirection * 10, Color.green, 100);
-
         var shootingGun = gunTypes.Find(x => x.Id == data[7]);
 
         var shootingPlayer = _networkManager.networkPlayer.FindPlayer(peer);
@@ -101,23 +98,11 @@ public class NetworkFPSManager : MonoBehaviour
         entity.AddForce(direction, gun.EntityShootPower, ForceMode.VelocityChange);
     }
 
-    private void CalculateShootData(Player shootingPlayer, Player player, Vector3 playerPosition, Vector3 hitPosition,
-        float damageData)
+    private void CalculateShootData(Player shootingPlayer, Player player, float damage)
     {
         if (!player.IsAlive) return;
 
-        var shootDistance = Vector3.Distance(playerPosition, hitPosition);
-
-        float damage;
-
-        if (shootDistance > 10)
-            damage = damageData - shootDistance / 2; //Il danno si riduce maggiore è la distanza percorsa.
-
-        else damage = damageData;
-
         player.Health -= damage;
-
-        //Debug.Log($"Player {player.Name} received {damage} damage! {player.Health} health left");
 
         if (player.Health <= 0)
         {
@@ -143,7 +128,7 @@ public class NetworkFPSManager : MonoBehaviour
             
             StartCoroutine(_networkManager.networkPlayer.KillPlayer(player.Name));
 
-            if (shootingPlayer != null) return;
+            if (!shootingPlayer) return;
             
             if (player.Team != shootingPlayer.Team) _networkManager.networkLeaderboard.AddPoint(shootingPlayer);
             else _networkManager.networkLeaderboard.RemovePoint(shootingPlayer);
