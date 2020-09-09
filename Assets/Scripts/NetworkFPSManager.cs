@@ -5,17 +5,10 @@ using UnityEngine;
 
 public class NetworkFPSManager : MonoBehaviour
 {
-    private const float armMultiplier = 1.2f;
-
-    private const float headMultiplier = 5;
-    private const float legMultiplier = 1.1f;
-
-    public List<Gun> gunTypes = new List<Gun>
-    {
-        new Gun(20, 0.75f, "0", 300, 10, 50, 0),
-        new Gun(70, 2.0f, "1", 70, 3, 200, 60),
-        new Gun(15, 0.2f, "2", 350, 50, 75, 0)
-    };
+    public Dictionary<string, Gun> gunTypes = new Dictionary<string, Gun>(){
+        {"0",new Gun(20, 0.75f, 300, 10, 50, 0)},
+        {"1",new Gun(70, 2.0f, 70, 3, 200, 60)},
+        {"2",new Gun(15, 0.2f, 350, 50, 75, 0)}};
 
     private NetworkManager _networkManager;
 
@@ -41,7 +34,7 @@ public class NetworkFPSManager : MonoBehaviour
 
     private void EntityShoot(Vector3 hitPosition, Vector3 hitDirection, string gunIndex, string entityName, Player player)
     {
-        var gun = gunTypes.Find(x => x.Id == gunIndex);
+        var gun = gunTypes[gunIndex];
 
         var entity = _networkManager.networkEntity.SpawnEntity(hitPosition, Quaternion.identity, entityName, player);
 
@@ -56,7 +49,7 @@ public class NetworkFPSManager : MonoBehaviour
 
         foreach (var h in hits)
         {
-            if (!h.transform || !h.transform.CompareTag("Player")) continue;
+            if (!h.transform || (!h.transform.CompareTag("Player") && !h.transform.CompareTag("Entity"))) continue;
             
             if (h.transform.CompareTag("Player"))
             {
@@ -67,10 +60,8 @@ public class NetworkFPSManager : MonoBehaviour
                 CalculateShootData(shootingPlayer, hitPlayer, shootingGun.Damage);
             }
 
-            else if (h.transform.CompareTag("Entity"))
-            {
-                EntityShoot(h.transform.gameObject.GetComponent<NetworkEntity>(), hitDirection, shootingGun);
-            }
+            else if (h.transform.CompareTag("Entity")) EntityShoot(h.transform.gameObject.GetComponent<NetworkEntity>(), hitDirection, shootingGun);
+            
         }
     }
 
@@ -84,7 +75,7 @@ public class NetworkFPSManager : MonoBehaviour
             float.Parse(data[5]),
             float.Parse(data[6]));
 
-        var shootingGun = gunTypes.Find(x => x.Id == data[7]);
+        var shootingGun = gunTypes[data[7]];
 
         var shootingPlayer = _networkManager.networkPlayer.FindPlayer(peer);
 
@@ -108,7 +99,7 @@ public class NetworkFPSManager : MonoBehaviour
         {
             player.Health = 0;
             _networkManager.networkLeaderboard.AddPoint(shootingPlayer);
-            StartCoroutine(_networkManager.networkPlayer.KillPlayer(player.Name));
+            StartCoroutine(_networkManager.networkPlayer.KillPlayer(player));
         }
         else
         {
@@ -126,7 +117,7 @@ public class NetworkFPSManager : MonoBehaviour
         {
             player.Health = 0;
             
-            StartCoroutine(_networkManager.networkPlayer.KillPlayer(player.Name));
+            StartCoroutine(_networkManager.networkPlayer.KillPlayer(player));
 
             if (!shootingPlayer) return;
             

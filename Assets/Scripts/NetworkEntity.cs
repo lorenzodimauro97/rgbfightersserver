@@ -16,13 +16,11 @@ public class NetworkEntity : MonoBehaviour
     }
 
     public Entity entityType;
-    public string gunId;
-    public string entityId;
+    public string gunId, entityId;
 
     public int damageAmount;
 
-    public Vector3 euler;
-    public Vector3 position;
+    public Vector3 position, euler;
 
     public NetworkEntityManager networkEntityManager;
 
@@ -36,10 +34,10 @@ public class NetworkEntity : MonoBehaviour
 
         networkEntityManager = GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkEntityManager>();
 
-        networkEntityManager.entities.Add(this);
+        networkEntityManager.entities.Add(entityId, this);
 
         if (entityType == Entity.Movable || entityType == Entity.Damage || entityType == Entity.Ragdoll)
-            networkEntityManager.movableEntities.Add(this);
+            networkEntityManager.movableEntities.Add(entityId, this);
     }
 
     private void FixedUpdate()
@@ -141,7 +139,7 @@ public class NetworkEntity : MonoBehaviour
         DisableEntity();
     }
 
-    private void AmmoEntityTrigger(Collider other)
+    private void AmmoEntityTrigger(Component other)
     {
         if (!other.CompareTag("Player")) return;
 
@@ -149,8 +147,7 @@ public class NetworkEntity : MonoBehaviour
 
         var peer = player.GetPeer();
 
-        var amount = networkEntityManager.networkManager.networkFps.gunTypes.Find(x => x.Id == player.GunIndex)
-            .ReloadAmount;
+        var amount = networkEntityManager.networkManager.networkFps.gunTypes[player.GunIndex].ReloadAmount;
 
         var message = $"AmmoAdd@{amount}";
 
@@ -190,7 +187,7 @@ public class NetworkEntity : MonoBehaviour
         SendNewEntityData(message);
     }
 
-    private void MovableEntityTrigger(Collider other)
+    private void MovableEntityTrigger(Component other)
     {
         if (!other.transform.CompareTag("Player")) return;
 

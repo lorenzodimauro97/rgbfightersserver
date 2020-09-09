@@ -5,23 +5,23 @@ using UnityEngine;
 
 public class NetworkLeaderboard : MonoBehaviour
 {
-    public List<LeaderBoard> leaderBoard;
+    public Dictionary<string, LeaderBoard> leaderBoard;
     private NetworkManager _networkManager;
 
     private void Start()
     {
-        leaderBoard = new List<LeaderBoard>();
+        leaderBoard = new Dictionary<string, LeaderBoard>();
         _networkManager = GetComponent<NetworkManager>();
     }
 
     public void AddPlayer(Player player)
     {
-        leaderBoard.Add(new LeaderBoard(player, 0));
+        leaderBoard.Add(player.GetPeerId().ToString(), new LeaderBoard(player, 0));;
     }
 
     public void AddPoint(Player player)
     {
-        var selectedPlayer = leaderBoard.Find(p => p.Player == player);
+        var selectedPlayer = leaderBoard[player.GetPeerId().ToString()];
 
         selectedPlayer.KillCount++;
 
@@ -30,7 +30,7 @@ public class NetworkLeaderboard : MonoBehaviour
 
     public void RemovePoint(Player player)
     {
-        var selectedPlayer = leaderBoard.Find(p => p.Player == player);
+        var selectedPlayer = leaderBoard[player.GetPeerId().ToString()];
 
         selectedPlayer.KillCount--;
 
@@ -39,7 +39,7 @@ public class NetworkLeaderboard : MonoBehaviour
     
     public void RemovePlayer(Player player)
     {
-        leaderBoard.RemoveAll(x => x.Player.GetPeer() == player.GetPeer());
+        leaderBoard.Remove(player.GetPeerId().ToString());
     }
 
     public void Clear()
@@ -50,7 +50,7 @@ public class NetworkLeaderboard : MonoBehaviour
     public void SendLeaderBoard()
     {
         var message = leaderBoard.Aggregate("LeaderBoard@",
-            (current, p) => current + $"{p.Player.name}&{p.Player.Team}&{p.KillCount}@");
+            (current, p) => current + $"{p.Value.Player.name}&{p.Value.Player.Team}&{p.Value.KillCount}@");
 
         _networkManager.SendMessageToClient(message);
     }
@@ -61,7 +61,7 @@ public class NetworkLeaderboard : MonoBehaviour
         var rgbKillCount = 0;
 
         foreach (var p in leaderBoard)
-            if (p.Player.Team.Contains("etero")) eteroKillCount++;
+            if (p.Value.Player.Team.Contains("etero")) eteroKillCount++;
             else rgbKillCount++;
 
         int winningTeam;
@@ -80,8 +80,8 @@ public class NetworkLeaderboard : MonoBehaviour
         var rgbKillCount = 0;
 
         foreach (var p in leaderBoard)
-            if (p.Player.Team.Contains("etero")) eteroKillCount += p.KillCount;
-            else rgbKillCount += p.KillCount;
+            if (p.Value.Player.Team.Contains("etero")) eteroKillCount += p.Value.KillCount;
+            else rgbKillCount += p.Value.KillCount;
 
         int winningTeam;
 

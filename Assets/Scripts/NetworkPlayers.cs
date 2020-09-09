@@ -8,11 +8,9 @@ public class NetworkPlayers : MonoBehaviour
 {
     public GameObject playerObject;
 
-    public List<Player> players;
+    public Dictionary<string, Player> players;
     private NetworkManager _networkManager;
-    private int _teamEteroCount;
-
-    private int _teamRgbCount;
+    private int _teamEteroCount, _teamRgbCount;
 
     private bool _teamSelect;
 
@@ -21,14 +19,11 @@ public class NetworkPlayers : MonoBehaviour
     {
         _networkManager = GetComponent<NetworkManager>();
 
-        players = new List<Player>(_networkManager.connectedPeerLimit);
+        players = new Dictionary<string, Player>(_networkManager.connectedPeerLimit);
     }
 
     public void StartPlayer(string[] playerData, NetPeer peer)
     {
-        if (players.Find(x => x.Name.Equals(playerData[1])))
-            NetworkManager.DisconnectClient("Username Already in use", peer);
-
         Debug.Log($"Peer {playerData[1]} connesso!");
 
         _networkManager.networkMap.SendMatchStatus(peer);
@@ -50,7 +45,7 @@ public class NetworkPlayers : MonoBehaviour
         if (_teamSelect) _teamEteroCount++;
         else _teamRgbCount++;
 
-        players.Add(newPlayer);
+        players.Add(peer.Id.ToString(), newPlayer);
 
         _networkManager.networkLeaderboard.AddPlayer(newPlayer);
 
@@ -74,7 +69,7 @@ public class NetworkPlayers : MonoBehaviour
         if (disconnectedPlayer.Team == "rgb") _teamRgbCount--;
         else _teamEteroCount--;
 
-        players.RemoveAll(x => x.GetPeer() == peer);
+        players.Remove(peer.Id.ToString());
         _networkManager.networkLeaderboard.RemovePlayer(disconnectedPlayer);
 
         Destroy(disconnectedPlayer.Body);
@@ -86,10 +81,7 @@ public class NetworkPlayers : MonoBehaviour
     {
         if (players.Count == 0) return;
 
-        var message = players.Aggregate("PlayersList@",
-            (current, p) =>
-                current +
-                $"{p.Name}&{p.GetPeerId()}&{p.Team}&{p.Color.r}&{p.Color.g}&{p.Color.b}&{p.Body.transform.position.x}&{p.Body.transform.position.y}&{p.Body.transform.position.z}&{p.GunIndex}@");
+        var message = players.Aggregate("PlayersList@", (current, player) => current + $"{player.Value.Name}&{player.Value.GetPeerId()}&{player.Value.Team}&{player.Value.Color.r}&{player.Value.Color.g}&{player.Value.Color.b}&{player.Value.Body.transform.position.x}&{player.Value.Body.transform.position.y}&{player.Value.Body.transform.position.z}&{player.Value.GunIndex}@");
 
         _networkManager.networkLeaderboard.SendLeaderBoard();
 
@@ -109,12 +101,8 @@ public class NetworkPlayers : MonoBehaviour
         SendPlayerPositionToClients(peer, playerData);
     }
 
-    public IEnumerator KillPlayer(string name)
+    public IEnumerator KillPlayer(Player deadPlayer)
     {
-        var deadPlayer = FindPlayer(name);
-
-        if (!deadPlayer.IsAlive) yield break;
-
         deadPlayer.SetAlive(false);
 
         _networkManager.SendMessageToClient($"PlayerDead@{deadPlayer.GetPeerId()}");
@@ -135,18 +123,12 @@ public class NetworkPlayers : MonoBehaviour
 
     public Player FindPlayer(NetPeer peer)
     {
-        return players.Find(x => x.GetPeer() == peer);
-    }
-
-    public Player FindPlayer(string name)
-    {
-        return players.Find(x => x.Name == name);
+        return players[peer.Id.ToString()];
     }
 
     public void Clear()
     {
         players.Clear();
-        players.Capacity = 0;
     }
 
     public void ChangePlayerGunIndex(string index, NetPeer peer)

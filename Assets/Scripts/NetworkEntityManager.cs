@@ -8,18 +8,18 @@ public class NetworkEntityManager : MonoBehaviour
 {
     public NetworkManager networkManager;
 
-    public List<NetworkEntity> entities;
-
-    public List<NetworkEntity> movableEntities;
+    public Dictionary<string, NetworkEntity> entities, movableEntities;
 
     public List<NetworkEntity> spawnableEntities;
+    
     private bool _isQuitting;
     private int _uniqueID = 10000;
 
     private void Start()
     {
         networkManager = GetComponent<NetworkManager>();
-        entities = new List<NetworkEntity>();
+        entities = new Dictionary<string, NetworkEntity>();
+        movableEntities = new Dictionary<string, NetworkEntity>();
         StartCoroutine(SendContinuousPosition(2));
     }
 
@@ -35,10 +35,10 @@ public class NetworkEntityManager : MonoBehaviour
         if (networkManager.networkMap.gameplayState.Equals(1) && movableEntities.Count > 0)
             foreach (var e in movableEntities)
             {
-                var position = e.transform.position;
-                var euler = e.transform.eulerAngles;
+                var position = e.Value.transform.position;
+                var euler = e.Value.transform.eulerAngles;
 
-                SendMessageToClient($"EntityPosition@{e.name}@{e.entityId}" +
+                SendMessageToClient($"EntityPosition@{e.Value.name}@{e.Value.entityId}" +
                                     $"@{position.x}" +
                                     $"@{position.y}" +
                                     $"@{position.z}" +
@@ -53,8 +53,8 @@ public class NetworkEntityManager : MonoBehaviour
 
     public void SendClientEntitiesStatus(NetPeer peer)
     {
-        foreach (var e in entities.Where(e => e))
-            SendMessageToClient($"EntitySetActive@{e.name}@{e.entityId}@{e.gameObject.activeSelf}", peer);
+        foreach (var e in entities)
+            SendMessageToClient($"EntitySetActive@{e.Value.name}@{e.Value.entityId}@{e.Value.gameObject.activeSelf}", peer);
     }
 
     public NetworkEntity SpawnEntity(Vector3 position, Quaternion rotation, string entityName, Player ownerPlayer)
@@ -99,8 +99,8 @@ public class NetworkEntityManager : MonoBehaviour
 
     public void RemoveEntity(NetworkEntity entity)
     {
-        entities.RemoveAll(x => x.entityId == entity.entityId);
-        movableEntities.RemoveAll(x => x.entityId == entity.entityId);
+        entities.Remove(entity.entityId);
+        movableEntities.Remove(entity.entityId);
         SendMessageToClient($"EntityDespawn@{entity.entityId}");
         Destroy(entity.gameObject);
     }

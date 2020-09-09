@@ -119,9 +119,10 @@ MonoBehaviour:
   gunId: 
   entityId: 
   damageAmount: 70
-  euler: {x: 0, y: 0, z: 0}
   position: {x: 0, y: 0, z: 0}
+  euler: {x: 0, y: 0, z: 0}
   networkEntityManager: {fileID: 0}
+  ownerPlayer: {fileID: 0}
 --- !u!114 &5908413651419839726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158,5 +159,5 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.002
+  m_Radius: 0.003
   m_Center: {x: 0, y: 0, z: 0}

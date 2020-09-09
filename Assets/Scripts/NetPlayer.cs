@@ -35,6 +35,6 @@ public class NetPlayer : MonoBehaviour
 
         if (newPosition.y > -200 || !_player.IsAlive) return;
         StartCoroutine(GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkPlayers>()
-            .KillPlayer(GetComponent<Player>().name));
+            .KillPlayer(_player));
     }
 }

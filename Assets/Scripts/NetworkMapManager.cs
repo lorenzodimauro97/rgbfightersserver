@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using LiteNetLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -97,7 +98,7 @@ public class NetworkMapManager : MonoBehaviour
 
         spawnPoints = new List<Vector3>();
 
-        var spawnPointsObjects = GameObject.FindGameObjectsWithTag("SpawnPoint");
+        var spawnPointsObjects = scene.GetRootGameObjects().Where(x => x.tag.Contains("SpawnPoint"));
 
         foreach (var s in spawnPointsObjects) spawnPoints.Add(s.transform.position);
     }
