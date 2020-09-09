@@ -52,6 +52,14 @@ public class NetworkMapManager : MonoBehaviour
     {
         while (networkManager.netManager.IsRunning)
         {
+            if (networkManager.netManager.ConnectedPeersCount < 2)
+            {
+                Debug.Log($"Waiting for players... connected: {networkManager.netManager.ConnectedPeersCount}");
+                yield return new WaitForSeconds(5);
+                gameplayState = 0;
+                continue;
+            }
+            
             switch (gameplayState)
             {
                 case 0:
@@ -106,7 +114,6 @@ public class NetworkMapManager : MonoBehaviour
                 networkManager.SendMessageToClient(
                     $"DownloadMap@{mapDownloadLink}@{_mapHash}@{_mapName}@{remainingMatchSeconds}",
                     peer);
-                Debug.Log("Sending map to load...");
                 break;
             case 2:
                 networkManager.SendMessageToClient(
@@ -136,7 +143,6 @@ public class NetworkMapManager : MonoBehaviour
             case 1:
                 networkManager.SendMessageToClient(
                     $"DownloadMap@{mapDownloadLink}@{_mapHash}");
-                Debug.Log("Sending map to load to all players...");
                 break;
             case 2:
                 networkManager.SendMessageToClient(
