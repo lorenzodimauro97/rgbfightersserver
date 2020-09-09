@@ -28,6 +28,8 @@ public class NetworkEntity : MonoBehaviour
 
     private Rigidbody _rigidbody;
 
+    public Player ownerPlayer;
+
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -165,7 +167,7 @@ public class NetworkEntity : MonoBehaviour
 
         var player = other.gameObject.GetComponent<Player>();
 
-        networkEntityManager.networkManager.networkFps.CalculateShootData(player, damageAmount);
+        networkEntityManager.networkManager.networkFps.CalculateShootData(player, damageAmount, ownerPlayer);
 
         networkEntityManager.RemoveEntity(this);
     }
@@ -196,7 +198,7 @@ public class NetworkEntity : MonoBehaviour
 
         if (_rigidbody.velocity.magnitude > 7)
             networkEntityManager.networkManager.networkFps.CalculateShootData(player,
-                _rigidbody.velocity.magnitude * _rigidbody.mass / 10);
+                _rigidbody.velocity.magnitude * _rigidbody.mass / 10, null);
 
         var force = (transform.position - other.transform.position) * 2;
         AddForce(force);

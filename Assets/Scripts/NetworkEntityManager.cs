@@ -57,7 +57,7 @@ public class NetworkEntityManager : MonoBehaviour
             SendMessageToClient($"EntitySetActive@{e.name}@{e.entityId}@{e.gameObject.activeSelf}", peer);
     }
 
-    public NetworkEntity SpawnEntity(Vector3 position, Quaternion rotation, string entityName)
+    public NetworkEntity SpawnEntity(Vector3 position, Quaternion rotation, string entityName, Player ownerPlayer)
     {
         var entity = spawnableEntities.Find(g => g.name == entityName);
         if (!entity) return null;
@@ -70,6 +70,8 @@ public class NetworkEntityManager : MonoBehaviour
         position = networkEntity.position;
 
         networkEntity.name = entity.name;
+
+        networkEntity.ownerPlayer = ownerPlayer;
 
         SendMessageToClient($"EntitySpawn@{networkEntity.name}@{networkEntity.entityId}" +
                             $"@{position.x}@{position.y}@{position.z}");
