@@ -10,7 +10,6 @@ using UnityEngine;
 public class NetworkManager : MonoBehaviour, INetEventListener
 {
     public int connectedPeerLimit;
-    public int connectedPeers;
     public MessageHandler messageHandler;
     public NetworkFPSManager networkFps;
     public NetworkMapManager networkMap;
@@ -55,11 +54,11 @@ public class NetworkManager : MonoBehaviour, INetEventListener
     {
         var key = request.Data.GetString();
 
-        if (connectedPeers < connectedPeerLimit &&
+        if (netManager.ConnectedPeersCount < connectedPeerLimit &&
             key == $"rgbfighters:{Application.version}")
             request.Accept();
 
-        else if (connectedPeers >= connectedPeerLimit)
+        else if (netManager.ConnectedPeersCount >= connectedPeerLimit)
             request.Reject(Encoding.ASCII.GetBytes("SServerFull"));
 
         else if (key != $"rgbfighters:{Application.version}")
