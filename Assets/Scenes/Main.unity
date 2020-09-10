@@ -153,8 +153,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   networkManager: {fileID: 0}
-  entities: []
-  movableEntities: []
   spawnableEntities:
   - {fileID: -641654942423699917, guid: 1b57af3626b6d8340b219fa1802d7fda, type: 3}
   - {fileID: 4634586770169209964, guid: 91d46b822a40afe48ac159272b5e901d, type: 3}
