@@ -10,6 +10,7 @@ using UnityEngine;
 public class NetworkManager : MonoBehaviour, INetEventListener
 {
     public int connectedPeerLimit;
+    public string serverName = "Frociless.org RGB Fighters Betatesting server (No froci allowed!)";
     public MessageHandler messageHandler;
     public NetworkFPSManager networkFps;
     public NetworkMapManager networkMap;
@@ -59,10 +60,10 @@ public class NetworkManager : MonoBehaviour, INetEventListener
             request.Accept();
 
         else if (netManager.ConnectedPeersCount >= connectedPeerLimit)
-            request.Reject(Encoding.ASCII.GetBytes("SServerFull"));
+            request.Reject(Encoding.ASCII.GetBytes("ServerFull"));
 
         else if (key != $"rgbfighters:{Application.version}")
-            request.Reject(Encoding.ASCII.GetBytes("SServerClientMismatch"));
+            request.Reject(Encoding.ASCII.GetBytes("ServerClientMismatch"));
     }
 
     public void OnNetworkError(IPEndPoint endPoint, SocketError socketError)
@@ -73,14 +74,12 @@ public class NetworkManager : MonoBehaviour, INetEventListener
 
     public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
     {
-        //Debug.Log(3);
     }
 
     public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
     {
         var message = reader.GetString();
-
-        //Debug.Log("Messaggio Ricevuto: " + message);
+        
         messageHandler.HandleIncomingMessage(message, peer);
     }
 

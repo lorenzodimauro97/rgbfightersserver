@@ -18,7 +18,7 @@ public class MessageHandler : MonoBehaviour
         switch (dataArray[0])
         {
             case "PlayerMapLoaded":
-                _networkManager.networkPlayer.SpawnPlayer(dataArray, peer);
+                _networkManager.networkMap.PlayerMapLoaded(dataArray, peer);
                 break;
             case "PlayerConnected":
                 _networkManager.networkPlayer.StartPlayer(dataArray, peer);

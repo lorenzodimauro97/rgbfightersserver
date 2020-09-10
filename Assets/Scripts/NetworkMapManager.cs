@@ -61,14 +61,14 @@ public class NetworkMapManager : MonoBehaviour
                     networkManager.networkPlayer.Clear();
                     networkManager.networkEntity.Clear();
                     networkManager.networkLeaderboard.Clear();
-                    yield return new WaitForSeconds(6);
+                    yield return new WaitForSeconds(30);
                     gameplayState = 1;
 
                     SceneManager.LoadScene(_map.GetAllScenePaths()[0]);
                     break;
 
                 case 1:
-                    remainingMatchSeconds = 600;
+                    remainingMatchSeconds = 20;
                     StartCoroutine(CountDownMatch());
                     yield return new WaitForSeconds(remainingMatchSeconds);
                     gameplayState = 2;
@@ -76,7 +76,7 @@ public class NetworkMapManager : MonoBehaviour
 
                 case 2:
                     Debug.Log("Match is Over, sending final result to clients...");
-                    yield return new WaitForSeconds(15);
+                    yield return new WaitForSeconds(50);
                     gameplayState = 0;
                     SceneManager.LoadScene(0);
                     break;
@@ -112,7 +112,6 @@ public class NetworkMapManager : MonoBehaviour
             case 2:
                 networkManager.SendMessageToClient(
                     "LoadMap@3", peer);
-                networkManager.networkLeaderboard.SendFinalResult(peer);
                 break;
         }
     }
@@ -132,6 +131,7 @@ public class NetworkMapManager : MonoBehaviour
             case 0:
                 networkManager.SendMessageToClient(
                     "LoadMap@2");
+                networkManager.SendMessageToClient($"WRConnectedPlayers@Connected Players:{networkManager.netManager.ConnectedPeersCount}");
                 break;
 
             case 1:
@@ -141,7 +141,22 @@ public class NetworkMapManager : MonoBehaviour
             case 2:
                 networkManager.SendMessageToClient(
                     "LoadMap@3");
-                networkManager.networkLeaderboard.SendFinalResult();
+                break;
+        }
+    }
+
+    public void PlayerMapLoaded(string[] dataArray, NetPeer peer)
+    {
+        switch (dataArray[2])
+        {
+            case "Waiting Room":
+                networkManager.SendMessageToClient($"WRServerName@{networkManager.serverName}", peer);
+                break;
+            case "map":
+                networkManager.networkPlayer.SpawnPlayer(dataArray, peer);
+                break;
+            case "LeaderBoard Room":
+                networkManager.networkLeaderboard.SendFinalResult(peer);
                 break;
         }
     }

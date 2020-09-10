@@ -62,6 +62,7 @@ public class NetworkPlayers : MonoBehaviour
 
     public Player RemovePlayer(NetPeer peer)
     {
+        if (!_networkManager.networkMap.gameplayState.Equals(1)) return null;
         var disconnectedPlayer = FindPlayer(peer);
 
         if (!disconnectedPlayer) return null;
@@ -96,7 +97,7 @@ public class NetworkPlayers : MonoBehaviour
 
         if (!movingPlayer.IsAlive) return;
 
-        movingPlayer?.NetPlayer.MovePlayer(playerData);
+        movingPlayer.NetPlayer.MovePlayer(playerData);
 
         SendPlayerPositionToClients(peer, playerData);
     }
