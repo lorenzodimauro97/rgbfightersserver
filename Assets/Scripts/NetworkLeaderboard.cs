@@ -50,7 +50,7 @@ public class NetworkLeaderboard : MonoBehaviour
     public void SendLeaderBoard()
     {
         var message = leaderBoard.Aggregate("LeaderBoard@",
-            (current, p) => current + $"{p.Value.Player.name}&{p.Value.Player.Team}&{p.Value.KillCount}@");
+            (current, p) => string.Concat(current,$"{p.Value.Player.name}&{p.Value.Player.Team}&{p.Value.KillCount}@"));
 
         _networkManager.SendMessageToClient(message);
     }

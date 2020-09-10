@@ -24,7 +24,7 @@ public class NetworkPlayers : MonoBehaviour
 
     public void StartPlayer(string[] playerData, NetPeer peer)
     {
-        Debug.Log($"Peer {playerData[1]} connesso!");
+        Debug.Log($"Peer {playerData[1]} Connesso!");
 
         _networkManager.networkMap.SendMatchStatus(peer);
     }
@@ -81,7 +81,7 @@ public class NetworkPlayers : MonoBehaviour
     {
         if (players.Count == 0) return;
 
-        var message = players.Aggregate("PlayersList@", (current, player) => current + $"{player.Value.Name}&{player.Value.GetPeerId()}&{player.Value.Team}&{player.Value.Color.r}&{player.Value.Color.g}&{player.Value.Color.b}&{player.Value.Body.transform.position.x}&{player.Value.Body.transform.position.y}&{player.Value.Body.transform.position.z}&{player.Value.GunIndex}@");
+        var message = players.Aggregate("PlayersList@", (current, player) => string.Concat(current, $"{player.Value.Name}&{player.Value.GetPeerId()}&{player.Value.Team}&{player.Value.Color.r}&{player.Value.Color.g}&{player.Value.Color.b}&{player.Value.Body.transform.position.x}&{player.Value.Body.transform.position.y}&{player.Value.Body.transform.position.z}&{player.Value.GunIndex}@"));
 
         _networkManager.networkLeaderboard.SendLeaderBoard();
 
@@ -135,7 +135,7 @@ public class NetworkPlayers : MonoBehaviour
     {
         var player = FindPlayer(peer);
         player.GunIndex = index;
-        _networkManager.SendMessageToClient($"GunChange@{player.GetPeerId()}@{index}");
+        _networkManager.SendMessageToClient($"GunChange@{peer.Id}@{index}");
     }
 
     private void SendPlayerPositionToClients(NetPeer peer, IReadOnlyList<string> playerData)
