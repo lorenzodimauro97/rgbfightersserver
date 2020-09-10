@@ -153,7 +153,7 @@ public class NetworkEntity : MonoBehaviour
 
         var peer = player.GetPeer();
 
-        var amount = networkEntityManager.networkManager.networkFps.gunTypes[player.GunIndex].ReloadAmount;
+        var amount = networkEntityManager.networkManager.networkFps.GunTypes[player.GunIndex].ReloadAmount;
 
         var message = $"AmmoAdd@{amount}";
 

@@ -54,20 +54,29 @@ public class NetworkLeaderboard : MonoBehaviour
 
         _networkManager.SendMessageToClient(message);
     }
-
-    public void SendFinalResult()
+    
+    private (int, int) GetMatchFinalResults()
     {
         var eteroKillCount = 0;
         var rgbKillCount = 0;
 
         foreach (var p in leaderBoard)
-            if (p.Value.Player.Team.Contains("etero")) eteroKillCount++;
-            else rgbKillCount++;
+        {
+            if (p.Value.Player.Team.Contains("etero")) eteroKillCount += p.Value.KillCount;
+            else rgbKillCount += p.Value.KillCount;
+        }
 
+        return (eteroKillCount, rgbKillCount);
+    }
+
+    public void SendFinalResult()
+    {
+        var (eteroKillCount, rgbKillCount) = GetMatchFinalResults();
+        
         int winningTeam;
-
+        
         if (eteroKillCount > rgbKillCount) winningTeam = 1;
-        else if (rgbKillCount > eteroKillCount) winningTeam = 2;
+        else if (eteroKillCount < rgbKillCount) winningTeam = 2;
         else winningTeam = 3;
 
         _networkManager.SendMessageToClient(
@@ -76,17 +85,12 @@ public class NetworkLeaderboard : MonoBehaviour
 
     public void SendFinalResult(NetPeer peer)
     {
-        var eteroKillCount = 0;
-        var rgbKillCount = 0;
-
-        foreach (var p in leaderBoard)
-            if (p.Value.Player.Team.Contains("etero")) eteroKillCount += p.Value.KillCount;
-            else rgbKillCount += p.Value.KillCount;
-
+        var (eteroKillCount, rgbKillCount) = GetMatchFinalResults();
+        
         int winningTeam;
-
+        
         if (eteroKillCount > rgbKillCount) winningTeam = 1;
-        else if (rgbKillCount > eteroKillCount) winningTeam = 2;
+        else if (eteroKillCount < rgbKillCount) winningTeam = 2;
         else winningTeam = 3;
 
         _networkManager.SendMessageToClient(

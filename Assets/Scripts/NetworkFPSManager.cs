@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class NetworkFPSManager : MonoBehaviour
 {
-    public Dictionary<string, Gun> gunTypes = new Dictionary<string, Gun>{
+    public readonly Dictionary<string, Gun> GunTypes = new Dictionary<string, Gun>{
         {"0",new Gun(20, 0.75f, 300, 10, 50, 0)},
         {"1",new Gun(70, 2.0f, 70, 3, 200, 60)},
         {"2",new Gun(15, 0.2f, 350, 50, 75, 0)}};
@@ -34,7 +34,7 @@ public class NetworkFPSManager : MonoBehaviour
 
     private void EntityShoot(Vector3 hitPosition, Vector3 hitDirection, string gunIndex, string entityName, Player player)
     {
-        var gun = gunTypes[gunIndex];
+        var gun = GunTypes[gunIndex];
 
         var entity = _networkManager.networkEntity.SpawnEntity(hitPosition, Quaternion.identity, entityName, player);
 
@@ -75,7 +75,7 @@ public class NetworkFPSManager : MonoBehaviour
             float.Parse(data[5]),
             float.Parse(data[6]));
 
-        var shootingGun = gunTypes[data[7]];
+        var shootingGun = GunTypes[data[7]];
 
         var shootingPlayer = _networkManager.networkPlayer.FindPlayer(peer);
 
