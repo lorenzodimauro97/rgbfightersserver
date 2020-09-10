@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class NetworkFPSManager : MonoBehaviour
 {
-    public Dictionary<string, Gun> gunTypes = new Dictionary<string, Gun>(){
+    public Dictionary<string, Gun> gunTypes = new Dictionary<string, Gun>{
         {"0",new Gun(20, 0.75f, 300, 10, 50, 0)},
         {"1",new Gun(70, 2.0f, 70, 3, 200, 60)},
         {"2",new Gun(15, 0.2f, 350, 50, 75, 0)}};
