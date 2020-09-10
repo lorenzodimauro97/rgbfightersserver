@@ -125,15 +125,15 @@ public class NetworkManager : MonoBehaviour, INetEventListener
 
     private void CreateServer()
     {
-        if (SetupNetManager()) netManager.Start(int.Parse(ConfigParser.GetValue("ipPort")));
+        if (SetupNetManager()) netManager.Start(ConfigParser.GetValueInt("ipPort"));
         if (!netManager.IsRunning)
         {
             Debug.LogError("Errore! Il server non si è avviato!");
             Application.Quit();
         }
 
-        serverIntro = ConfigParser.GetValue("serverIntro");
-        connectedPeerLimit = int.Parse(ConfigParser.GetValue("maximumPlayers"));
+        serverIntro = ConfigParser.GetValueString("serverIntro");
+        connectedPeerLimit = ConfigParser.GetValueInt("maximumPlayers");
 
         Debug.Log($"Server avviato su porta {netManager.LocalPort}");
         networkMap.StartMapManager();

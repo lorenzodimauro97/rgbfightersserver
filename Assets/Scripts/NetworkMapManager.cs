@@ -19,6 +19,8 @@ public class NetworkMapManager : MonoBehaviour
     private string _mapHash, _mapPath, _mapName;
     public string mapDownloadLink;
 
+    private int _waitingRoomTime, _gameplayTime, _leaderboardTime;
+
     public void StartMapManager()
     {
         _mapPath = Application.dataPath + "/Maps/map";
@@ -29,9 +31,18 @@ public class NetworkMapManager : MonoBehaviour
 
         LoadMap();
 
+        LoadConfigData();
+        
         SceneManager.sceneLoaded += LoadSpawnPoints;
 
         StartCoroutine(MapTimer());
+    }
+
+    private void LoadConfigData()
+    {
+        _waitingRoomTime = ConfigParser.GetValueInt("waitingRoomTime");
+        _gameplayTime = ConfigParser.GetValueInt("gameplayTime");
+        _leaderboardTime = ConfigParser.GetValueInt("leaderboardTime");
     }
 
     private void LoadMap()
@@ -61,14 +72,14 @@ public class NetworkMapManager : MonoBehaviour
                     networkManager.networkPlayer.Clear();
                     networkManager.networkEntity.Clear();
                     networkManager.networkLeaderboard.Clear();
-                    yield return new WaitForSeconds(30);
+                    yield return new WaitForSeconds(_waitingRoomTime);
                     gameplayState = 1;
 
                     SceneManager.LoadScene(_map.GetAllScenePaths()[0]);
                     break;
 
                 case 1:
-                    remainingMatchSeconds = 20;
+                    remainingMatchSeconds = _gameplayTime;
                     StartCoroutine(CountDownMatch());
                     yield return new WaitForSeconds(remainingMatchSeconds);
                     gameplayState = 2;
@@ -76,7 +87,7 @@ public class NetworkMapManager : MonoBehaviour
 
                 case 2:
                     Debug.Log("Match is Over, sending final result to clients...");
-                    yield return new WaitForSeconds(50);
+                    yield return new WaitForSeconds(_leaderboardTime);
                     gameplayState = 0;
                     SceneManager.LoadScene(0);
                     break;

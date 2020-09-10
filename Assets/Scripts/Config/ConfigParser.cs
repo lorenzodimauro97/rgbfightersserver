@@ -8,10 +8,13 @@ public class ConfigParser
 
     private static readonly string DefaultConfig = "serverIntro:60" + Environment.NewLine +
                                                    "ipPort:1337" + Environment.NewLine +
-                                                   "maximumPlayers:20";
+                                                   "maximumPlayers:20" + Environment.NewLine +
+                                                   "waitingRoomTime:5" + Environment.NewLine +
+                                                   "gameplayTime:600" + Environment.NewLine +
+                                                   "leaderboardTime:30";
                                                    
 
-    public static string GetValue(string value)
+    public static string GetValueString(string value)
     {
         while (true)
         {
@@ -31,6 +34,11 @@ public class ConfigParser
 
             CreateConfigFile();
         }
+    }
+
+    public static int GetValueInt(string value)
+    {
+        return int.Parse(GetValueString(value));
     }
 
     private static void CreateValue(string name, string value)
