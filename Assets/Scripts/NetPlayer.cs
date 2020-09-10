@@ -4,12 +4,12 @@ public class NetPlayer : MonoBehaviour
 {
     public GameObject head;
     private Player _player;
-    private string ArmType;
-    private string LegType;
+    private NetworkManager _networkManager;
 
     private void Start()
     {
         _player = GetComponent<Player>();
+        _networkManager = GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkManager>();
     }
 
     public void MovePlayer(string[] dataArray)
@@ -30,11 +30,7 @@ public class NetPlayer : MonoBehaviour
         transform.eulerAngles = newEulerAngles;
         head.transform.eulerAngles = headEulerAngles;
 
-        LegType = dataArray[10];
-        ArmType = dataArray[11];
-
         if (newPosition.y > -200 || !_player.IsAlive) return;
-        StartCoroutine(GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<NetworkPlayers>()
-            .KillPlayer(_player));
+        StartCoroutine(_networkManager.networkPlayer.KillPlayer(_player));
     }
 }

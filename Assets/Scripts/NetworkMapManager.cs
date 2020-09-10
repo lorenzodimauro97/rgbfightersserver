@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using LiteNetLib;
@@ -7,23 +8,16 @@ using UnityEngine.SceneManagement;
 
 public class NetworkMapManager : MonoBehaviour
 {
-    public int
-        gameplayState; //0 significa in attesa che siano tutti pronti (1 minuto), 1 che si sta giocando (10 minuti), 2 che è finito il gioco (30 secondi)
-
-    public string mapDownloadLink;
-
     public NetworkManager networkManager;
 
     public List<Vector3> spawnPoints;
 
-    public int remainingMatchSeconds;
+    public int gameplayState, remainingMatchSeconds;
+    
     private AssetBundle _map;
 
-    private string _mapHash;
-
-    private string _mapName;
-
-    private string _mapPath;
+    private string _mapHash, _mapPath, _mapName;
+    public string mapDownloadLink;
 
     public void StartMapManager()
     {
@@ -74,7 +68,7 @@ public class NetworkMapManager : MonoBehaviour
                     break;
 
                 case 1:
-                    remainingMatchSeconds = 6000;
+                    remainingMatchSeconds = 600;
                     StartCoroutine(CountDownMatch());
                     yield return new WaitForSeconds(remainingMatchSeconds);
                     gameplayState = 2;
@@ -87,7 +81,6 @@ public class NetworkMapManager : MonoBehaviour
                     SceneManager.LoadScene(0);
                     break;
             }
-
             SendMatchStatus();
         }
     }
@@ -108,7 +101,7 @@ public class NetworkMapManager : MonoBehaviour
         switch (gameplayState)
         {
             case 0:
-                networkManager.SendMessageToClient("LoadMap@1", peer);
+                networkManager.SendMessageToClient("LoadMap@2", peer);
                 break;
 
             case 1:
@@ -118,7 +111,7 @@ public class NetworkMapManager : MonoBehaviour
                 break;
             case 2:
                 networkManager.SendMessageToClient(
-                    "LoadMap@2", peer);
+                    "LoadMap@3", peer);
                 networkManager.networkLeaderboard.SendFinalResult(peer);
                 break;
         }
@@ -138,7 +131,7 @@ public class NetworkMapManager : MonoBehaviour
         {
             case 0:
                 networkManager.SendMessageToClient(
-                    "LoadMap@1");
+                    "LoadMap@2");
                 break;
 
             case 1:
@@ -147,9 +140,14 @@ public class NetworkMapManager : MonoBehaviour
                 break;
             case 2:
                 networkManager.SendMessageToClient(
-                    "LoadMap@2");
+                    "LoadMap@3");
                 networkManager.networkLeaderboard.SendFinalResult();
                 break;
         }
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= LoadSpawnPoints;
     }
 }
