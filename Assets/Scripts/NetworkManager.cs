@@ -10,7 +10,7 @@ using UnityEngine;
 public class NetworkManager : MonoBehaviour, INetEventListener
 {
     public int connectedPeerLimit;
-    public string serverName = "Frociless.org RGB Fighters Betatesting server (No froci allowed!)";
+    public string serverIntro;
     public MessageHandler messageHandler;
     public NetworkFPSManager networkFps;
     public NetworkMapManager networkMap;
@@ -25,20 +25,26 @@ public class NetworkManager : MonoBehaviour, INetEventListener
     private void Start()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("it");
+        
         if (GameObject.FindGameObjectsWithTag("NetworkManager").Length > 1)
         {
             Destroy(gameObject);
             return;
         }
 
+        SetupNetworkSystem();
+        DontDestroyOnLoad(this);
+        CreateServer();
+    }
+
+    private void SetupNetworkSystem()
+    {
         messageHandler = GetComponent<MessageHandler>();
         networkPlayer = GetComponent<NetworkPlayers>();
         networkMap = GetComponent<NetworkMapManager>();
         networkFps = GetComponent<NetworkFPSManager>();
         networkEntity = GetComponent<NetworkEntityManager>();
         networkLeaderboard = GetComponent<NetworkLeaderboard>();
-        DontDestroyOnLoad(this);
-        CreateServer();
     }
 
     private void Update()
@@ -119,12 +125,15 @@ public class NetworkManager : MonoBehaviour, INetEventListener
 
     private void CreateServer()
     {
-        if (SetupNetManager()) netManager.Start(1337);
+        if (SetupNetManager()) netManager.Start(int.Parse(ConfigParser.GetValue("ipPort")));
         if (!netManager.IsRunning)
         {
             Debug.LogError("Errore! Il server non si è avviato!");
             Application.Quit();
         }
+
+        serverIntro = ConfigParser.GetValue("serverIntro");
+        connectedPeerLimit = int.Parse(ConfigParser.GetValue("maximumPlayers"));
 
         Debug.Log($"Server avviato su porta {netManager.LocalPort}");
         networkMap.StartMapManager();

@@ -150,7 +150,7 @@ public class NetworkMapManager : MonoBehaviour
         switch (dataArray[2])
         {
             case "Waiting Room":
-                networkManager.SendMessageToClient($"WRServerName@{networkManager.serverName}", peer);
+                networkManager.SendMessageToClient($"WRServerName@{networkManager.serverIntro}", peer);
                 break;
             case "map":
                 networkManager.networkPlayer.SpawnPlayer(dataArray, peer);
