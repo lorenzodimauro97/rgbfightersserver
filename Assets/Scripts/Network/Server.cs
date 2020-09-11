@@ -103,15 +103,15 @@ namespace Network
             
             var packet = RawMessage.ToPacket(message, PacketFlags.Reliable);
 
-            if(message.IsBroadCast) _server.Broadcast(0, ref packet);
-            else _peers[message.PeerIDToSend].Send(0, ref packet);
+            if(message.isBroadcast) _server.Broadcast(0, ref packet);
+            else _peers[message.PeerID].Send(0, ref packet);
         }
     }
 
     public class Server : MonoBehaviour
     {
         private TrueServer _server;
-        private SerializeDeserialize _serializer;
+        public SerializeDeserialize _serializer;
         private void Start()
         {
             _server = new TrueServer();

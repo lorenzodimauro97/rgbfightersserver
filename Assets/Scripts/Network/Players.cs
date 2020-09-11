@@ -10,18 +10,23 @@ namespace Network
         public GameObject playerObject;
 
         public Dictionary<uint, Player.Player> players;
+        
         private int _teamEteroCount, _teamRgbCount;
 
         private bool _teamSelect;
 
 
-        /*private void Start()
+        private void Start()
         {
-
-            players = new Dictionary<string, Player.Player>(_networkManager.connectedPeerLimit);
+            players = new Dictionary<uint, Player.Player>(20);
         }
 
-        public void StartPlayer(string[] playerData, NetPeer peer)
+        public void AddPlayer(Player.Player player)
+        {
+            players.Add(player.GetPeerId(), player);
+        }
+
+        /*public void StartPlayer(string[] playerData, NetPeer peer)
         {
             Debug.Log($"Peer {playerData[1]} Connesso!");
 
