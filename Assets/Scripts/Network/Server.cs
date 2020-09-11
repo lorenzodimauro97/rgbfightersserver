@@ -18,7 +18,7 @@ namespace Network
         
         private Host _server;
         private Dictionary<uint, Peer> _peers;
-        private bool _isQuitting = false;
+        public bool _isQuitting = false;
         private Event _netEvent;
         
         public void Start()
@@ -73,6 +73,7 @@ namespace Network
 
                         case EventType.Receive:
                             Debug.Log("Packet received from - ID: " + _netEvent.Peer.ID + ", IP: " + _netEvent.Peer.IP + ", Channel ID: " + _netEvent.ChannelID + ", Data length: " + _netEvent.Packet.Length);
+                            AddReceivedPacketToChannel(_netEvent);
                             _netEvent.Packet.Dispose();
                             break;
                         default:
@@ -82,16 +83,27 @@ namespace Network
             Library.Deinitialize();
         }
 
+        private void AddReceivedPacketToChannel(Event netEvent)
+        {
+            var buffer = new byte[_netEvent.Packet.Length];
+
+            netEvent.Packet.CopyTo(buffer);
+            
+            var rawMessage = new RawMessage(buffer[0], buffer.Skip(1).ToArray());
+
+            ReceivedMessages.Writer.WriteAsync(rawMessage);
+        }
+
         private void BroadcastMessage(RawMessage message)
         {
-            var packet = RawMessage.ToPacket(message, PacketFlags.UnreliableFragmented);
+            var packet = RawMessage.ToPacket(message, PacketFlags.Reliable);
             
             _server.Broadcast(0, ref packet);
         }
         
         private void SendMessageToPeer(RawMessage message, uint peerId)
         {
-            var packet = RawMessage.ToPacket(message, PacketFlags.UnreliableFragmented);
+            var packet = RawMessage.ToPacket(message, PacketFlags.Reliable);
             
             _peers[peerId].Send(0, ref packet);
         }
