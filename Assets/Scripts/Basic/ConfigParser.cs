@@ -9,6 +9,7 @@ public class ConfigParser
     private static readonly string DefaultConfig = "serverIntro:60" + Environment.NewLine +
                                                    "ipPort:1337" + Environment.NewLine +
                                                    "maximumPlayers:20" + Environment.NewLine +
+                                                   "minimumPlayers:0" + Environment.NewLine +
                                                    "waitingRoomTime:5" + Environment.NewLine +
                                                    "gameplayTime:600" + Environment.NewLine +
                                                    "leaderboardTime:30";
