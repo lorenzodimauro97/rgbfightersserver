@@ -4,9 +4,11 @@ using MessagePack;
 namespace Network.Messages
 {
     [MessagePackObject]
-    public class ConnectionMessage : IMessage
+    public abstract class ConnectionMessage : IMessage
     {
         [Key(0)]
         public string message { get; set; }
+        [Key(1)]
+        public byte messageCode { get; set; }
     }
 }

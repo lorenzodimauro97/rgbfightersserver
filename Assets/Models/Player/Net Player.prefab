@@ -55,7 +55,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4573806960147715649}
   - component: {fileID: 4573806960147715609}
-  - component: {fileID: -8500356821628987557}
   - component: {fileID: -8973815489765211319}
   m_Layer: 8
   m_Name: Net Player
@@ -93,19 +92,6 @@ CapsuleCollider:
   m_Height: 1.05
   m_Direction: 1
   m_Center: {x: 0, y: -0.5, z: 0}
---- !u!114 &-8500356821628987557
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4573806960147716032}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 409dbfd8f6227ac419ea5855ccf7e582, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  head: {fileID: 4573806960147715891}
 --- !u!54 &-8973815489765211319
 Rigidbody:
   m_ObjectHideFlags: 0

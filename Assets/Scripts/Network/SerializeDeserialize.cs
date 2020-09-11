@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Channels;
 using Basic;
 using MessagePack;
 using Network.Messages;
@@ -9,14 +10,14 @@ namespace Network
 {
     public class SerializeDeserialize
     {
-        private static TrueServer _server;
+        public static TrueServer _server;
 
-        private List<IMessage> _messages;
+        public Channel<IMessage> receivedMessages;
 
         public SerializeDeserialize(TrueServer server)
         {
             _server = server;
-            _messages = new List<IMessage>();
+            receivedMessages = Channel.CreateUnbounded<IMessage>(); 
             new Thread(DataToRawMessage).Start();
         }
 
@@ -24,14 +25,11 @@ namespace Network
         {
             var channel = _server.ReceivedMessages;
 
-            RawMessage message;
-
             while (!_server._isQuitting)
-            { 
-                var newMessage = channel.Reader.TryRead(out message);
+            {
+                var newMessage = channel.Reader.TryRead(out var message);
             
-                if(newMessage) Debug.Log(message.MessageType);
-                if(message != null) RawMessageToMessage(message);
+                if(newMessage && message != null) RawMessageToMessage(message);
             }
         }
 
@@ -40,15 +38,13 @@ namespace Network
             switch (message.MessageType)
             {
                 case 0:
-                    _messages.Add(MessagePackSerializer.Deserialize<ConnectionMessage>(message.Data));
+                    receivedMessages.Writer.WriteAsync(
+                        MessagePackSerializer.Deserialize<ConnectionMessage>(message.Data));
                     break;
                 case 1:
-                    _messages.Add(MessagePackSerializer.Deserialize<ConnectionMessage>(message.Data));
+                    //_messages.Add(MessagePackSerializer.Deserialize<ConnectionMessage>(message.Data));
                     break;
             }
-
-            ConnectionMessage conmes = (ConnectionMessage) _messages[0];
-            Debug.Log(conmes.message);
         }
     }
 }

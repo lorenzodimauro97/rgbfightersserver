@@ -47,6 +47,7 @@ namespace Network
             
             while (!_isQuitting)
             {
+                SendMessage();
                 _server.Flush();
                 
                 _server.CheckEvents(out _netEvent);
@@ -89,23 +90,21 @@ namespace Network
 
             netEvent.Packet.CopyTo(buffer);
             
-            var rawMessage = new RawMessage(buffer[0], buffer.Skip(1).ToArray());
+            var rawMessage = new RawMessage(buffer[0], buffer.Skip(1).ToArray(), false, 0);
 
             ReceivedMessages.Writer.WriteAsync(rawMessage);
         }
 
-        private void BroadcastMessage(RawMessage message)
+        private void SendMessage()
         {
-            var packet = RawMessage.ToPacket(message, PacketFlags.Reliable);
+            var newMessage = MessagesToSend.Reader.TryRead(out var message);
             
-            _server.Broadcast(0, ref packet);
-        }
-        
-        private void SendMessageToPeer(RawMessage message, uint peerId)
-        {
-            var packet = RawMessage.ToPacket(message, PacketFlags.Reliable);
+            if (!newMessage || message == null) return;
             
-            _peers[peerId].Send(0, ref packet);
+            var packet = RawMessage.ToPacket(message, PacketFlags.Reliable);
+
+            if(message.IsBroadCast) _server.Broadcast(0, ref packet);
+            else _peers[message.PeerIDToSend].Send(0, ref packet);
         }
     }
 
