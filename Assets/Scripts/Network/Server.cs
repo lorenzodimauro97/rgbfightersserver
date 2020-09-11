@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Channels;
 using ENet;
@@ -11,9 +13,11 @@ namespace Network
 { 
     public class TrueServer
     {
-        public Channel<RawMessage> Channel;
+        public Channel<RawMessage> ReceivedMessages;
+        public Channel<RawMessage> MessagesToSend;
         
         private Host _server;
+        private Dictionary<uint, Peer> _peers;
         private bool _isQuitting = false;
         private Event _netEvent;
         
@@ -26,16 +30,18 @@ namespace Network
 
             var address = new Address {Port = (ushort) ConfigParser.GetValueInt("ipPort")};
 
+            _peers = new Dictionary<uint, Peer>();
             _server.Create(address, ConfigParser.GetValueInt("maximumPlayers"));
             
             Debug.Log($"Starting server at port {address.Port}");
 
-            Channel = System.Threading.Channels.Channel.CreateUnbounded<RawMessage>();
+            ReceivedMessages = Channel.CreateUnbounded<RawMessage>();
+            MessagesToSend = Channel.CreateUnbounded<RawMessage>();
 
-            new Thread(FetchNetEvent).Start();
+            new Thread(FetchSendNetEvent).Start();
         }
 
-        private void FetchNetEvent()
+        private void FetchSendNetEvent()
         {
             Debug.Log("Starting Message Fetching / Sending...");
             
@@ -52,14 +58,17 @@ namespace Network
 
                         case EventType.Connect:
                             Debug.Log("Client connected - ID: " + _netEvent.Peer.ID + ", IP: " + _netEvent.Peer.IP);
+                            _peers.Add(_netEvent.Peer.ID, _netEvent.Peer);
                             break;
 
                         case EventType.Disconnect:
                             Debug.Log("Client disconnected - ID: " + _netEvent.Peer.ID + ", IP: " + _netEvent.Peer.IP);
+                            _peers.Remove(_netEvent.Peer.ID);
                             break;
 
                         case EventType.Timeout:
                             Debug.Log("Client timeout - ID: " + _netEvent.Peer.ID + ", IP: " + _netEvent.Peer.IP);
+                            _peers.Remove(_netEvent.Peer.ID);
                             break;
 
                         case EventType.Receive:
@@ -72,6 +81,20 @@ namespace Network
             }
             Library.Deinitialize();
         }
+
+        private void BroadcastMessage(RawMessage message)
+        {
+            var packet = RawMessage.ToPacket(message, PacketFlags.UnreliableFragmented);
+            
+            _server.Broadcast(0, ref packet);
+        }
+        
+        private void SendMessageToPeer(RawMessage message, uint peerId)
+        {
+            var packet = RawMessage.ToPacket(message, PacketFlags.UnreliableFragmented);
+            
+            _peers[peerId].Send(0, ref packet);
+        }
     }
 
     public class Server : MonoBehaviour
@@ -82,6 +105,7 @@ namespace Network
         {
             _server = new TrueServer();
             _server.Start();
+            _serializer = new SerializeDeserialize(_server);
         }
     }
 }
