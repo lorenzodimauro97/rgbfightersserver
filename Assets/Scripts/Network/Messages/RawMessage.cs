@@ -1,36 +1,35 @@
-﻿using System.Linq;
-using Basic;
+﻿using Basic;
 using ENet;
+using MessagePack;
 
 namespace Network.Messages
 {
-    public class RawMessage : IMessage
+    public class RawMessage
     {
         public byte[] Data { get; }
-        public byte MessageCode { get; }
-        public bool isBroadcast { get; }
-        public uint PeerID { get; set; }
-
-        public RawMessage(byte messageType, byte[] rawData, bool isBroadCast, uint peerIDToSend)
+        public bool IsBroadcast { get; }
+        public RawMessage(byte[] data, bool isBroadCast)
         {
-            MessageCode = messageType;
-            Data = rawData;
-            isBroadcast = isBroadCast;
-            PeerID = peerIDToSend;
+            Data = data;
+            IsBroadcast = isBroadCast;
         }
         
-        public static Packet ToPacket(RawMessage message, PacketFlags flags)
+        public RawMessage(IMessage data)
+        {
+            Data = MessagePackSerializer.Serialize(data);
+            IsBroadcast = data.IsBroadcast;
+        }
+        
+        public Packet Packet(PacketFlags flags)
         {
             var packet = new Packet();
-            byte[] buffer = {message.MessageCode};
-            buffer = buffer.Concat(message.Data).ToArray();
-            packet.Create(buffer, flags);
+            packet.Create(Data, flags);
             return packet;
         }
-        
-        public void DoWork(NetworkInterfaces interfaces)
+
+        public IMessage Message()
         {
-            
+            return MessagePackSerializer.Deserialize<IMessage>(Data);
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using Players;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Network
@@ -9,7 +9,7 @@ namespace Network
     {
         public GameObject playerObject;
 
-        public Dictionary<uint, Player.Player> players;
+        public Dictionary<uint, Player> players;
         
         private int _teamEteroCount, _teamRgbCount;
 
@@ -18,12 +18,21 @@ namespace Network
 
         private void Start()
         {
-            players = new Dictionary<uint, Player.Player>(20);
+            players = new Dictionary<uint, Player>(20);
         }
 
-        public void AddPlayer(Player.Player player)
+        public void AddPlayer(uint ID, SerializablePlayer serializablePlayer)
         {
-            players.Add(player.GetPeerId(), player);
+            var player = Instantiate(playerObject).GetComponent<Player>();
+
+            player.SetSerializablePlayer(serializablePlayer);
+            
+            players.Add(ID, player);
+        }
+
+        public Player GetPlayer(uint ID)
+        {
+            return players[ID];
         }
 
         /*public void StartPlayer(string[] playerData, NetPeer peer)

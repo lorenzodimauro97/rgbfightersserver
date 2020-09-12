@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Collections;
+using Basic;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace Network
@@ -15,27 +16,24 @@ namespace Network
     }
     public class UnityInterface : MonoBehaviour
     {
-        public SerializeDeserialize serializer;
+        public TrueServer Server;
 
         private NetworkInterfaces _interfaces;
 
-        private void Start()
+        public void Setup(TrueServer server)
         {
-            serializer = GetComponent<Server>()._serializer;
+            Server = server;
             _interfaces = new NetworkInterfaces(GetComponent<Players>());
-            StartCoroutine(ReadMessages());
+            Debug.Log("Unity Interface Started");
         }
 
-        private IEnumerator ReadMessages()
-        {
-            while (!serializer._server._isQuitting)
-            {
-                var newMessage = serializer.receivedMessages.Reader.TryRead(out var message);
+        public void SendMessages(IMessage message) => Server.MessagesToSend.Writer.WriteAsync(message);
 
-                if (newMessage) message?.DoWork(_interfaces);
-            }
-            
-            yield break;
+        private void Update()
+        {
+            var newMessage = Server.ReceivedMessages.Reader.TryRead(out var message);
+                
+            if (newMessage) message?.DoWork(_interfaces);
         }
     }
 }

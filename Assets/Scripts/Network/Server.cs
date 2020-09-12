@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Channels;
+using Basic;
 using ENet;
 using Network.Messages;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Event = ENet.Event;
 using EventType = ENet.EventType;
 
@@ -13,8 +15,8 @@ namespace Network
 { 
     public class TrueServer
     {
-        public Channel<RawMessage> ReceivedMessages;
-        public Channel<RawMessage> MessagesToSend;
+        public Channel<IMessage> ReceivedMessages;
+        public Channel<IMessage> MessagesToSend;
         
         private Host _server;
         private Dictionary<uint, Peer> _peers;
@@ -35,8 +37,8 @@ namespace Network
             
             Debug.Log($"Starting server at port {address.Port}");
 
-            ReceivedMessages = Channel.CreateUnbounded<RawMessage>();
-            MessagesToSend = Channel.CreateUnbounded<RawMessage>();
+            ReceivedMessages = Channel.CreateUnbounded<IMessage>();
+            MessagesToSend = Channel.CreateUnbounded<IMessage>();
 
             new Thread(FetchSendNetEvent).Start();
         }
@@ -90,9 +92,9 @@ namespace Network
 
             netEvent.Packet.CopyTo(buffer);
             
-            var rawMessage = new RawMessage(buffer[0], buffer.Skip(1).ToArray(), false, 0);
+            var rawMessage = new RawMessage(buffer, false);
 
-            ReceivedMessages.Writer.WriteAsync(rawMessage);
+            ReceivedMessages.Writer.WriteAsync(rawMessage.Message());
         }
 
         private void SendMessage()
@@ -101,9 +103,9 @@ namespace Network
             
             if (!newMessage || message == null) return;
             
-            var packet = RawMessage.ToPacket(message, PacketFlags.Reliable);
+            var packet = new RawMessage(message).Packet(PacketFlags.Reliable);
 
-            if(message.isBroadcast) _server.Broadcast(0, ref packet);
+            if(message.IsBroadcast) _server.Broadcast(0, ref packet);
             else _peers[message.PeerID].Send(0, ref packet);
         }
     }
@@ -111,12 +113,13 @@ namespace Network
     public class Server : MonoBehaviour
     {
         private TrueServer _server;
-        public SerializeDeserialize _serializer;
+        public UnityInterface @interface;
         private void Start()
         {
             _server = new TrueServer();
             _server.Start();
-            _serializer = new SerializeDeserialize(_server);
+            @interface = GetComponent<UnityInterface>();
+            @interface.Setup(_server);
         }
     }
 }

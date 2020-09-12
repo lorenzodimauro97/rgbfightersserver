@@ -1,20 +1,30 @@
 using Basic;
+using Players;
 using MessagePack;
+using UnityEngine;
 
 namespace Network.Messages
 {
     [MessagePackObject]
-    public abstract class ConnectionMessage : IMessage
+    public class ConnectionMessage : IMessage
     {
-        [Key(0)] public Player.Player Player;
+        [Key(0)] public SerializablePlayer Player { get; }
+        [Key(1)] public byte MessageCode { get; }
+        [Key(2)] public bool IsBroadcast { get; }
+        [Key(3)] public uint PeerID { get; }
 
-        [Key(1)] public byte MessageCode { get; set; }
-        [Key(2)] public bool isBroadcast { get; set; }
-        [Key(3)] public uint PeerID { get; set; }
+
+        [SerializationConstructor]
+        public ConnectionMessage(SerializablePlayer player)
+        {
+            Player = player;
+            MessageCode = 0;
+            IsBroadcast = false;
+        }
 
         public void DoWork(NetworkInterfaces interfaces)
         {
-            interfaces.Players.AddPlayer(Player);
+            interfaces.Players.AddPlayer(PeerID, Player);
         }
     }
 }

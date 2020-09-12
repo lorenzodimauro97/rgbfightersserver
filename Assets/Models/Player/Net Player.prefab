@@ -56,6 +56,7 @@ GameObject:
   - component: {fileID: 4573806960147715649}
   - component: {fileID: 4573806960147715609}
   - component: {fileID: -8973815489765211319}
+  - component: {fileID: -7627191979607624488}
   m_Layer: 8
   m_Name: Net Player
   m_TagString: Player
@@ -108,3 +109,16 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 3
+--- !u!114 &-7627191979607624488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4573806960147716032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88cf1d0c926af8a4eb009b6ce6e33ad5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  head: {fileID: 4573806960147715891}
