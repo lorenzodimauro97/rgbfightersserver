@@ -2,11 +2,14 @@
 using Players;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Network
 {
     public class Players : MonoBehaviour
     {
+        public UnityInterface @interface;
+        
         public GameObject playerObject;
 
         public Dictionary<uint, Player> players;
@@ -18,16 +21,23 @@ namespace Network
 
         private void Start()
         {
-            players = new Dictionary<uint, Player>(20);
+            @interface = GetComponent<UnityInterface>();
+        }
+
+        public void SetPlayers(int size)
+        {
+            players = new Dictionary<uint, Player>(size);
         }
 
         public void AddPlayer(uint ID, SerializablePlayer serializablePlayer)
         {
             var player = Instantiate(playerObject).GetComponent<Player>();
 
-            player.SetSerializablePlayer(serializablePlayer);
+            player.SetSerializablePlayer(serializablePlayer, ID);
             
             players.Add(ID, player);
+            
+            @interface._interfaces.GameplayManager.UpdatePlayerMatchStatus(player.SerializablePlayer);
         }
 
         public Player GetPlayer(uint ID)

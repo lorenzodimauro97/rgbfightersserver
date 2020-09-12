@@ -4,9 +4,9 @@ using Network.Messages;
 namespace Basic
 {
     [MessagePack.Union(0, typeof(ConnectionMessage))]
+    [MessagePack.Union(1, typeof(LoadMapMessage))]
     public interface IMessage
-    { 
-        byte MessageCode { get; }
+    {
         bool IsBroadcast { get; }
         uint PeerID { get; }
 

@@ -1,6 +1,7 @@
 serverIntro:60
 ipPort:1337
 maximumPlayers:20
+minimumPlayers:0
 waitingRoomTime:5
 gameplayTime:600
 leaderboardTime:30

@@ -9,10 +9,11 @@ namespace Players
     public class SerializablePlayer
     {
         [Key(0)] public string Nickname { get; }
+        [Key(1)] public uint ID { get; set; }
         [IgnoreMember] public Player Player;
-        [Key(1)] public Vector3 Position { get; private set; }
-        [Key(2)] public Quaternion Rotation { get; private set; }
-        [Key(3)] public Quaternion HeadRotation { get; private set; }
+        [Key(2)] public Vector3 Position { get; private set; }
+        [Key(3)] public Quaternion Rotation { get; private set; }
+        [Key(4)] public Quaternion HeadRotation { get; private set; }
         
         public SerializablePlayer(string nickname, Player player)
         {
@@ -21,9 +22,10 @@ namespace Players
         }
 
         [SerializationConstructor]
-        public SerializablePlayer(string nickname)
+        public SerializablePlayer(string nickname, uint id)
         {
             Nickname = nickname;
+            ID = id;
         }
 
         public void UpdatePositionRotation(Vector3 position, Quaternion rotation, Quaternion headRotation)
@@ -45,15 +47,17 @@ namespace Players
         private void Start()
         {
             Body = gameObject;
-            SerializablePlayer = new SerializablePlayer(null);
+            SerializablePlayer = new SerializablePlayer(null, null);
         }
 
-        public void SetSerializablePlayer(SerializablePlayer serializablePlayer)
+        public void SetSerializablePlayer(SerializablePlayer serializablePlayer, uint id)
         {
             SerializablePlayer = serializablePlayer;
             SerializablePlayer.Player = this;
-            
-            Debug.Log($"Hello! I'm {serializablePlayer.Nickname}!");
+            serializablePlayer.ID = id;
+            gameObject.name = serializablePlayer.Nickname;
+
+            Debug.Log($"Player {serializablePlayer.Nickname} Connected!");
         }
     }
 }

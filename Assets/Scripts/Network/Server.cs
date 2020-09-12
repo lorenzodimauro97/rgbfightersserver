@@ -21,6 +21,7 @@ namespace Network
         private Host _server;
         private Dictionary<uint, Peer> _peers;
         public bool _isQuitting = false;
+        public int peerLimit;
         private Event _netEvent;
         
         public void Start()
@@ -31,6 +32,7 @@ namespace Network
             _server = new Host();
 
             var address = new Address {Port = (ushort) ConfigParser.GetValueInt("ipPort")};
+            peerLimit = ConfigParser.GetValueInt("maximumPlayers");
 
             _peers = new Dictionary<uint, Peer>();
             _server.Create(address, ConfigParser.GetValueInt("maximumPlayers"));
@@ -60,7 +62,6 @@ namespace Network
                             break;
 
                         case EventType.Connect:
-                            Debug.Log("Client connected - ID: " + _netEvent.Peer.ID + ", IP: " + _netEvent.Peer.IP);
                             _peers.Add(_netEvent.Peer.ID, _netEvent.Peer);
                             break;
 
@@ -116,6 +117,7 @@ namespace Network
         public UnityInterface @interface;
         private void Start()
         {
+            DontDestroyOnLoad(gameObject);
             _server = new TrueServer();
             _server.Start();
             @interface = GetComponent<UnityInterface>();

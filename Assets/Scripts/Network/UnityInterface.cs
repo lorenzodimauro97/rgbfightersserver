@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Basic;
 using Unity.Jobs;
 using UnityEngine;
@@ -8,22 +9,26 @@ namespace Network
     public class NetworkInterfaces
     {
         public Players Players { get; }
+        public GameplayManager GameplayManager { get; }
 
-        public NetworkInterfaces(Players players)
+        public NetworkInterfaces(Players players, GameplayManager manager)
         {
             Players = players;
+            GameplayManager = manager;
         }
     }
     public class UnityInterface : MonoBehaviour
     {
         public TrueServer Server;
 
-        private NetworkInterfaces _interfaces;
+        public NetworkInterfaces _interfaces;
 
         public void Setup(TrueServer server)
         {
             Server = server;
-            _interfaces = new NetworkInterfaces(GetComponent<Players>());
+            _interfaces = new NetworkInterfaces(GetComponent<Players>(), GetComponent<GameplayManager>());
+            _interfaces.Players.SetPlayers(server.peerLimit);
+            _interfaces.GameplayManager.StartMapManager();
             Debug.Log("Unity Interface Started");
         }
 
@@ -31,8 +36,10 @@ namespace Network
 
         private void Update()
         {
+            if(Server == null) return;
+            
             var newMessage = Server.ReceivedMessages.Reader.TryRead(out var message);
-                
+
             if (newMessage) message?.DoWork(_interfaces);
         }
     }
