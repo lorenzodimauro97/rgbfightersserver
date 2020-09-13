@@ -22,8 +22,7 @@ namespace Network
         private Dictionary<uint, Peer> _peers;
         public bool _isQuitting = false;
         public int peerLimit;
-        private Event _netEvent;
-        
+
         public void Start()
         {
             Library.Initialize();
@@ -53,32 +52,34 @@ namespace Network
             {
                 SendMessage();
                 _server.Flush();
-                
-                _server.CheckEvents(out _netEvent);
-                _server.Service(0, out _netEvent);
 
-                switch (_netEvent.Type) {
+                _server.CheckEvents(out var netEvent);
+                _server.Service(0, out netEvent);
+
+                switch (netEvent.Type) {
                         case EventType.None:
                             break;
 
                         case EventType.Connect:
-                            _peers.Add(_netEvent.Peer.ID, _netEvent.Peer);
+                            _peers.Add(netEvent.Peer.ID, netEvent.Peer);
                             break;
 
                         case EventType.Disconnect:
-                            Debug.Log("Client disconnected - ID: " + _netEvent.Peer.ID + ", IP: " + _netEvent.Peer.IP);
-                            _peers.Remove(_netEvent.Peer.ID);
+                            Debug.Log("Client disconnected - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
+                            _peers.Remove(netEvent.Peer.ID);
+                            ReceivedMessages.Writer.WriteAsync(new DisconnectMessage(false, netEvent.Peer.ID));
                             break;
 
                         case EventType.Timeout:
-                            Debug.Log("Client timeout - ID: " + _netEvent.Peer.ID + ", IP: " + _netEvent.Peer.IP);
-                            _peers.Remove(_netEvent.Peer.ID);
+                            Debug.Log("Client timeout - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP);
+                            _peers.Remove(netEvent.Peer.ID);
+                            ReceivedMessages.Writer.WriteAsync(new DisconnectMessage(false, netEvent.Peer.ID));
                             break;
 
                         case EventType.Receive:
-                            Debug.Log("Packet received from - ID: " + _netEvent.Peer.ID + ", IP: " + _netEvent.Peer.IP + ", Channel ID: " + _netEvent.ChannelID + ", Data length: " + _netEvent.Packet.Length);
-                            AddReceivedPacketToChannel(_netEvent);
-                            _netEvent.Packet.Dispose();
+                            Debug.Log("Packet received from - ID: " + netEvent.Peer.ID + ", IP: " + netEvent.Peer.IP + ", Channel ID: " + netEvent.ChannelID + ", Data length: " + netEvent.Packet.Length);
+                            AddReceivedPacketToChannel(netEvent);
+                            netEvent.Packet.Dispose();
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -89,13 +90,17 @@ namespace Network
 
         private void AddReceivedPacketToChannel(Event netEvent)
         {
-            var buffer = new byte[_netEvent.Packet.Length];
+            var buffer = new byte[netEvent.Packet.Length];
 
             netEvent.Packet.CopyTo(buffer);
             
             var rawMessage = new RawMessage(buffer, false);
 
-            ReceivedMessages.Writer.WriteAsync(rawMessage.Message());
+            var message = rawMessage.Message();
+
+            message.PeerID = netEvent.Peer.ID;
+
+            ReceivedMessages.Writer.WriteAsync(message);
         }
 
         private void SendMessage()

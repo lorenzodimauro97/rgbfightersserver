@@ -10,7 +10,7 @@ namespace Network.Messages
     {
         [Key(0)] public SerializablePlayer Player { get; }
         [Key(1)] public bool IsBroadcast { get; set; }
-        [Key(2)] public uint PeerID { get; }
+        [Key(2)] public uint PeerID { get; set; }
 
 
         [SerializationConstructor]

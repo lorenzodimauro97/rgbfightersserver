@@ -6,11 +6,12 @@ public class ConfigParser
 {
     private static readonly string Path = Directory.GetParent(Application.dataPath) + "\\Config\\config";
 
-    private static readonly string DefaultConfig = "serverIntro:60" + Environment.NewLine +
+    private static readonly string DefaultConfig = "serverIntro:Insert something here!" + Environment.NewLine +
                                                    "ipPort:1337" + Environment.NewLine +
                                                    "maximumPlayers:20" + Environment.NewLine +
                                                    "minimumPlayers:0" + Environment.NewLine +
                                                    "waitingRoomTime:5" + Environment.NewLine +
+                                                   "mapDownloadLink:rgbfighters.videogamezone.eu/map" + Environment.NewLine +
                                                    "gameplayTime:600" + Environment.NewLine +
                                                    "leaderboardTime:30";
                                                    

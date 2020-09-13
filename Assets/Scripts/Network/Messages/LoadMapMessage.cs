@@ -10,10 +10,11 @@ namespace Network.Messages
         [Key(1)] public string MapDownloadLink { get; }
         [Key(2)] public string MapHash { get; }
         [Key(3)] public bool IsBroadcast { get; set; }
-        [Key(4)] public uint PeerID { get; }
+        [Key(4)] public uint PeerID { get; set; }
 
         [SerializationConstructor]
-        public LoadMapMessage(int mapIndex, string mapDownloadLink, string mapHash, bool isBroadcast, uint peerID)
+        public LoadMapMessage(int mapIndex, string mapDownloadLink, string mapHash,
+            bool isBroadcast, uint peerID)
         {
             MapIndex = mapIndex;
             MapDownloadLink = mapDownloadLink;
@@ -23,7 +24,7 @@ namespace Network.Messages
         }
         public void DoWork(NetworkInterfaces interfaces)
         {
-            throw new System.NotImplementedException();
+            interfaces.GameplayManager.PlayerLoadedMap(MapIndex);
         }
     }
 }

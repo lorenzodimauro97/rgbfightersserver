@@ -16,23 +16,24 @@ namespace Network
     
         private AssetBundle _map;
 
-        private string _mapHash, _mapPath, _mapName;
-        public string mapDownloadLink;
+        private string _mapHash, _mapPath, _mapName, _serverIntro;
+        private string _mapDownloadLink;
 
         private int _waitingRoomTime, _gameplayTime, _leaderboardTime, _minimumPlayers;
         
         public UnityInterface @interface;
-        
-        private void Start()
-        {
-            @interface = GetComponent<UnityInterface>();
-        }
 
         public void StartMapManager()
         {
+            @interface = GetComponent<UnityInterface>();
+            
             _mapPath = Application.dataPath + "/Maps/map";
 
             _mapHash = DataFormatter.CalculateFileHash(_mapPath);
+
+            _serverIntro = ConfigParser.GetValueString("serverIntro");
+
+            _mapDownloadLink = ConfigParser.GetValueString("mapDownloadLink");
 
             LoadMap();
 
@@ -66,7 +67,7 @@ namespace Network
             yield return new WaitForSeconds(0.25f);
             while (!@interface.Server._isQuitting)
             {
-                if (@interface.Server.peerLimit < _minimumPlayers)
+                if (@interface._interfaces.Players.players.Count < _minimumPlayers)
                 {
                     Debug.Log($"Waiting for players... connected: {@interface._interfaces.Players.players.Count}");
                     yield return new WaitForSeconds(5);
@@ -102,14 +103,32 @@ namespace Network
 
         public void UpdatePlayerMatchStatus(SerializablePlayer player)
         {
-            var message = new LoadMapMessage(gameplayState, mapDownloadLink, _mapHash, false, player.ID);
+            var message = new LoadMapMessage(gameplayState, _mapDownloadLink, 
+                _mapHash, false, player.ID);
             @interface.SendMessages(message);
         }
-        
-        public void UpdatePlayerMatchStatus()
+
+        private void UpdatePlayerMatchStatus()
         {
-            var message = new LoadMapMessage(gameplayState, mapDownloadLink, _mapHash, true, 0);
+            var message = new LoadMapMessage(gameplayState, _mapDownloadLink, 
+                _mapHash, true, 0);
             @interface.SendMessages(message);
+        }
+
+        public void SendWaitingRoomData()
+        {
+            var message = new WaitingRoomMessage(@interface._interfaces.Players.players.Count, _minimumPlayers, _serverIntro, true);
+            @interface.SendMessages(message);
+        }
+
+        public void PlayerLoadedMap(int index)
+        {
+            switch (index)
+            {
+                case 1: break;
+                case 2: SendWaitingRoomData();
+                    break;
+            }
         }
 
         private void LoadSpawnPoints(Scene scene, LoadSceneMode mode)

@@ -40,6 +40,12 @@ namespace Network
             @interface._interfaces.GameplayManager.UpdatePlayerMatchStatus(player.SerializablePlayer);
         }
 
+        public void RemovePlayer(uint ID)
+        {
+            players.Remove(ID);
+            @interface._interfaces.GameplayManager.SendWaitingRoomData();
+        }
+
         public Player GetPlayer(uint ID)
         {
             return players[ID];
