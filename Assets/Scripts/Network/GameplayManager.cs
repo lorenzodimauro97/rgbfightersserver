@@ -33,7 +33,7 @@ namespace Network
 
             _serverIntro = ConfigParser.GetValueString("serverIntro");
 
-            _mapDownloadLink = ConfigParser.GetValueString("mapDownloadLink");
+            _mapDownloadLink = $"http://{ConfigParser.GetValueString("mapDownloadLink")}";
 
             LoadMap();
 
@@ -95,16 +95,16 @@ namespace Network
                         Debug.Log("Match is Over, sending final result to clients...");
                         yield return new WaitForSeconds(_leaderboardTime);
                         gameplayState = 2;
-                        SceneManager.LoadScene(0);
+                        SceneManager.LoadScene(1);
                         break;
                 }
             }
         }
 
-        public void UpdatePlayerMatchStatus(SerializablePlayer player)
+        public void UpdatePlayerMatchStatus(uint id)
         {
             var message = new LoadMapMessage(gameplayState, _mapDownloadLink, 
-                _mapHash, false, player.ID);
+                _mapHash, false, id);
             @interface.SendMessages(message);
         }
 
@@ -121,11 +121,13 @@ namespace Network
             @interface.SendMessages(message);
         }
 
-        public void PlayerLoadedMap(int index)
+        public void PlayerLoadedMap(int index, uint peerID)
         {
+            Debug.Log(index);
             switch (index)
             {
-                case 1: break;
+                case -1: @interface._interfaces.Players.SpawnPlayer(peerID);
+                    break;
                 case 2: SendWaitingRoomData();
                     break;
             }

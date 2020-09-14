@@ -27,7 +27,6 @@ namespace Network
         {
             Server = server;
             _interfaces = new NetworkInterfaces(GetComponent<Players>(), GetComponent<GameplayManager>());
-            _interfaces.Players.SetPlayers(server.peerLimit);
             _interfaces.GameplayManager.StartMapManager();
             Debug.Log("Unity Interface Started");
         }
@@ -40,7 +39,10 @@ namespace Network
             
             var newMessage = Server.ReceivedMessages.Reader.TryRead(out var message);
 
-            if (newMessage) message?.DoWork(_interfaces);
+            if (!newMessage) return;
+            
+            message?.DoWork(_interfaces);
+            Debug.Log($"Received {message}");
         }
     }
 }

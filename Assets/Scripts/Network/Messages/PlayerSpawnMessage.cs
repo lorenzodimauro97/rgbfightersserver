@@ -1,18 +1,35 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
+using Basic;
+using MessagePack;
+using Players;
 using UnityEngine;
 
-public class PlayerSpawnMessage : MonoBehaviour
+namespace Network.Messages
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [MessagePackObject]
+    public class PlayerSpawnMessage : IMessage
+    { 
+        [Key(0)] public Vector3 LocalPlayerPosition { get; }
+        [Key(1)] public string LocalPlayerNickname { get; }
+        [Key(2)]public Dictionary<uint, string> NetPlayers { get; }
+        [Key(4)] public bool IsBroadcast { get; }
+        [Key(3)] public uint PeerID { get; set; }
 
-    // Update is called once per frame
-    void Update()
-    {
+        [SerializationConstructor]
+        public PlayerSpawnMessage(Vector3 localPlayerPosition, string localPlayerNickname, Dictionary<uint, string> players, uint peerID)
+        {
+            LocalPlayerPosition = localPlayerPosition;
+            LocalPlayerNickname = localPlayerNickname;
+            NetPlayers = players;
+            IsBroadcast = true;
+            PeerID = peerID;
+        }
+
         
+        public void DoWork(NetworkInterfaces interfaces)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

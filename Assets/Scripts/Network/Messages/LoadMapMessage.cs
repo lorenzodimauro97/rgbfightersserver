@@ -24,7 +24,7 @@ namespace Network.Messages
         }
         public void DoWork(NetworkInterfaces interfaces)
         {
-            interfaces.GameplayManager.PlayerLoadedMap(MapIndex);
+            interfaces.GameplayManager.PlayerLoadedMap(MapIndex, PeerID);
         }
     }
 }

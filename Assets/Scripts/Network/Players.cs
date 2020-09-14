@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Network.Messages;
 using Players;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 namespace Network
 {
@@ -22,74 +25,83 @@ namespace Network
         private void Start()
         {
             @interface = GetComponent<UnityInterface>();
+            players = new Dictionary<uint, Player>();
         }
 
-        public void SetPlayers(int size)
-        {
-            players = new Dictionary<uint, Player>(size);
-        }
-
-        public void AddPlayer(uint ID, SerializablePlayer serializablePlayer)
+        public void AddPlayer(uint id, string nickname)
         {
             var player = Instantiate(playerObject).GetComponent<Player>();
 
-            player.SetSerializablePlayer(serializablePlayer, ID);
+            player.Nickname = nickname;
+
+            player.ID = id;
             
-            players.Add(ID, player);
+            players.Add(id, player);
             
-            @interface._interfaces.GameplayManager.UpdatePlayerMatchStatus(player.SerializablePlayer);
+            @interface._interfaces.GameplayManager.UpdatePlayerMatchStatus(player.ID);
         }
 
-        public void RemovePlayer(uint ID)
+        public void RemovePlayer(uint id)
         {
-            players.Remove(ID);
+            Destroy(players[id].gameObject);
+            players.Remove(id);
             @interface._interfaces.GameplayManager.SendWaitingRoomData();
         }
 
-        public Player GetPlayer(uint ID)
+        public Player GetPlayer(uint id)
         {
-            return players[ID];
+            return players[id];
         }
 
-        /*public void StartPlayer(string[] playerData, NetPeer peer)
-        {
-            Debug.Log($"Peer {playerData[1]} Connesso!");
-
-            _networkManager.networkMap.SendMatchStatus(peer);
-        }
-
-        public void SpawnPlayer(string[] playerData, NetPeer peer)
+        public void SpawnPlayer(uint id)
         {
             var playerColor = new Color(Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f));
 
             var spawnPoint =
-                _networkManager.networkMap.spawnPoints[Random.Range(0, _networkManager.networkMap.spawnPoints.Count)];
+               @interface._interfaces.GameplayManager.spawnPoints[Random.Range(0, @interface._interfaces.GameplayManager.spawnPoints.Count)];
 
-            var newPlayer = Instantiate(playerObject).AddComponent<Player.Player>();
+            var newPlayer = players[id];
 
             _teamSelect = _teamRgbCount > _teamEteroCount;
 
-            newPlayer.Spawn(playerData[1], _teamSelect ? "etero" : "rgb", peer, spawnPoint, playerColor);
+            newPlayer.Team = _teamSelect ? "etero" : "rgb";
 
             if (_teamSelect) _teamEteroCount++;
             else _teamRgbCount++;
 
-            players.Add(peer.Id.ToString(), newPlayer);
+            newPlayer.SetPositionRotation(spawnPoint, quaternion.identity, quaternion.identity);
 
-            _networkManager.networkLeaderboard.AddPlayer(newPlayer);
+            var serializablePlayers = players.Where(p => !p.Value.ID.Equals(newPlayer.ID)).ToDictionary(p => p.Key, p => p.Value.Nickname);
 
-            _networkManager.SendMessageToClient(
-                $"PlayerInformation@{peer.Id}@{newPlayer.Team}@{playerColor.r}@{playerColor.g}@{playerColor.b}@{spawnPoint.x}@{spawnPoint.y}@{spawnPoint.z}@{_networkManager.networkMap.remainingMatchSeconds}",
-                peer);
+            var message = new PlayerSpawnMessage(newPlayer.transform.position, newPlayer.Nickname, serializablePlayers, id);
+            
+            @interface.SendMessages(message);
 
-            SendPlayerListToClients();
+            //players.Add(peer.Id.ToString(), newPlayer);
 
-            _networkManager.networkEntity.SendClientEntitiesStatus(peer);
+            //_networkManager.networkLeaderboard.AddPlayer(newPlayer);
 
-            _networkManager.SendChatMessage($"ChatMessage@Server:{playerData[1]} Si è Connesso!");
+            // _networkManager.SendMessageToClient(
+            //     $"PlayerInformation@{peer.Id}@{newPlayer.Team}@{playerColor.r}@{playerColor.g}@{playerColor.b}@{spawnPoint.x}@{spawnPoint.y}@{spawnPoint.z}@{_networkManager.networkMap.remainingMatchSeconds}",
+            //     peer);
+            //
+            // SendPlayerListToClients();
+
+            //_networkManager.networkEntity.SendClientEntitiesStatus(peer);
+
+            //_networkManager.SendChatMessage($"ChatMessage@Server:{playerData[1]} Si è Connesso!");
         }
 
-        public Player.Player RemovePlayer(NetPeer peer)
+        public void SetPlayerPositionRotation(uint id, Vector3 position, Quaternion rotation, Quaternion headRotation, PlayerPositionRotationMessage message)
+        {
+            players[id].SetPositionRotation(position, rotation, headRotation);
+
+            message.IsBroadcast = true;
+            
+            @interface.SendMessages(message);
+        }
+
+        /*public Player.Player RemovePlayer(NetPeer peer)
         {
             if (!_networkManager.networkMap.gameplayState.Equals(1)) return null;
             var disconnectedPlayer = FindPlayer(peer);

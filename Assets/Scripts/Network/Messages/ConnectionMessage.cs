@@ -8,21 +8,21 @@ namespace Network.Messages
     [MessagePackObject]
     public class ConnectionMessage : IMessage
     {
-        [Key(0)] public SerializablePlayer Player { get; }
+        [Key(0)] public string PlayerNickname { get; }
         [Key(1)] public bool IsBroadcast { get; set; }
         [Key(2)] public uint PeerID { get; set; }
 
 
         [SerializationConstructor]
-        public ConnectionMessage(SerializablePlayer player)
+        public ConnectionMessage(string player)
         {
-            Player = player;
+            PlayerNickname = player;
             IsBroadcast = false;
         }
 
         public void DoWork(NetworkInterfaces interfaces)
         {
-            interfaces.Players.AddPlayer(PeerID, Player);
+            interfaces.Players.AddPlayer(PeerID, PlayerNickname);
 
             IsBroadcast = true;
         }

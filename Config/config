@@ -1,7 +1,8 @@
-serverIntro:Welcome to the NewNetworkingSystem branch!
+serverIntro:Insert something here!
 ipPort:1337
 maximumPlayers:20
-minimumPlayers:4
+minimumPlayers:1
 waitingRoomTime:5
-gameplayTime:600
-leaderboardTime:30
+mapDownloadLink:rgbfighters.videogamezone.eu/map
+gameplayTime:300
+leaderboardTime:5
