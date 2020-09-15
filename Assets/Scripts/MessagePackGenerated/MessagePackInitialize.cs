@@ -1,12 +1,13 @@
 ﻿using MessagePack;
 using MessagePack.Resolvers;
+using UnityEditor;
 using UnityEngine;
 
 namespace MessagePackGenerated
 {
     public static class MessagePackInitialize
     {
-        private static bool _serializerRegistered = false;
+        private static bool _serializerRegistered;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Initialize()
@@ -27,7 +28,7 @@ namespace MessagePackGenerated
 #if UNITY_EDITOR
 
 
-        [UnityEditor.InitializeOnLoadMethod]
+        [InitializeOnLoadMethod]
         private static void EditorInitialize()
         {
             Initialize();

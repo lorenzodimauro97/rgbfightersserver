@@ -11,10 +11,11 @@ public class ConfigParser
                                                    "maximumPlayers:20" + Environment.NewLine +
                                                    "minimumPlayers:0" + Environment.NewLine +
                                                    "waitingRoomTime:5" + Environment.NewLine +
-                                                   "mapDownloadLink:rgbfighters.videogamezone.eu/map" + Environment.NewLine +
+                                                   "mapDownloadLink:rgbfighters.videogamezone.eu/map" +
+                                                   Environment.NewLine +
                                                    "gameplayTime:600" + Environment.NewLine +
                                                    "leaderboardTime:30";
-                                                   
+
 
     public static string GetValueString(string value)
     {

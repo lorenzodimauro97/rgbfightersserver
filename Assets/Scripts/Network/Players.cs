@@ -4,7 +4,6 @@ using Network.Messages;
 using Players;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace Network
@@ -12,11 +11,11 @@ namespace Network
     public class Players : MonoBehaviour
     {
         public UnityInterface @interface;
-        
+
         public GameObject playerObject;
 
         public Dictionary<uint, Player> players;
-        
+
         private int _teamEteroCount, _teamRgbCount;
 
         private bool _teamSelect;
@@ -35,17 +34,18 @@ namespace Network
             player.Nickname = nickname;
 
             player.ID = id;
-            
+
             players.Add(id, player);
-            
-            @interface._interfaces.GameplayManager.UpdatePlayerMatchStatus(player.ID);
+
+            @interface.Interfaces.GameplayManager.UpdatePlayerMatchStatus(player.ID);
         }
 
         public void RemovePlayer(uint id)
         {
+            if (!players.ContainsKey(id)) return;
             Destroy(players[id].gameObject);
             players.Remove(id);
-            @interface._interfaces.GameplayManager.SendWaitingRoomData();
+            @interface.Interfaces.GameplayManager.SendWaitingRoomData();
         }
 
         public Player GetPlayer(uint id)
@@ -58,7 +58,8 @@ namespace Network
             var playerColor = new Color(Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f));
 
             var spawnPoint =
-               @interface._interfaces.GameplayManager.spawnPoints[Random.Range(0, @interface._interfaces.GameplayManager.spawnPoints.Count)];
+                @interface.Interfaces.GameplayManager.spawnPoints[
+                    Random.Range(0, @interface.Interfaces.GameplayManager.spawnPoints.Count)];
 
             var newPlayer = players[id];
 
@@ -71,10 +72,12 @@ namespace Network
 
             newPlayer.SetPositionRotation(spawnPoint, quaternion.identity, quaternion.identity);
 
-            var serializablePlayers = players.Where(p => !p.Value.ID.Equals(newPlayer.ID)).ToDictionary(p => p.Key, p => p.Value.Nickname);
+            var serializablePlayers = players.Where(p => !p.Value.ID.Equals(newPlayer.ID))
+                .ToDictionary(p => p.Key, p => p.Value.Nickname);
 
-            var message = new PlayerSpawnMessage(newPlayer.transform.position, newPlayer.Nickname, serializablePlayers, id);
-            
+            var message = new PlayerSpawnMessage(newPlayer.transform.position, newPlayer.Nickname, serializablePlayers,
+                id);
+
             @interface.SendMessages(message);
 
             //players.Add(peer.Id.ToString(), newPlayer);
@@ -92,12 +95,13 @@ namespace Network
             //_networkManager.SendChatMessage($"ChatMessage@Server:{playerData[1]} Si è Connesso!");
         }
 
-        public void SetPlayerPositionRotation(uint id, Vector3 position, Quaternion rotation, Quaternion headRotation, PlayerPositionRotationMessage message)
+        public void SetPlayerPositionRotation(uint id, Vector3 position, Quaternion rotation, Quaternion headRotation,
+            PlayerPositionRotationMessage message)
         {
             players[id].SetPositionRotation(position, rotation, headRotation);
 
             message.IsBroadcast = true;
-            
+
             @interface.SendMessages(message);
         }
 

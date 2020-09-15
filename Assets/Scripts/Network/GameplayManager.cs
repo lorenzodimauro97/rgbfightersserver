@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Network.Messages;
-using Players;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -13,20 +12,25 @@ namespace Network
         public List<Vector3> spawnPoints;
 
         public int gameplayState, remainingMatchSeconds;
-    
-        private AssetBundle _map;
 
-        private string _mapHash, _mapPath, _mapName, _serverIntro;
+        public UnityInterface @interface;
+
+        private AssetBundle _map;
         private string _mapDownloadLink;
 
+        private string _mapHash, _mapPath, _mapName, _serverIntro;
+
         private int _waitingRoomTime, _gameplayTime, _leaderboardTime, _minimumPlayers;
-        
-        public UnityInterface @interface;
+
+        private void OnDestroy()
+        {
+            SceneManager.sceneLoaded -= LoadSpawnPoints;
+        }
 
         public void StartMapManager()
         {
             @interface = GetComponent<UnityInterface>();
-            
+
             _mapPath = Application.dataPath + "/Maps/map";
 
             _mapHash = DataFormatter.CalculateFileHash(_mapPath);
@@ -38,7 +42,7 @@ namespace Network
             LoadMap();
 
             LoadConfigData();
-        
+
             SceneManager.sceneLoaded += LoadSpawnPoints;
 
             StartCoroutine(MapTimer());
@@ -65,16 +69,16 @@ namespace Network
         {
             gameplayState = 2;
             yield return new WaitForSeconds(0.25f);
-            while (!@interface.Server._isQuitting)
+            while (!@interface.server.isQuitting)
             {
-                if (@interface._interfaces.Players.players.Count < _minimumPlayers)
+                if (@interface.Interfaces.Players.players.Count < _minimumPlayers)
                 {
-                    Debug.Log($"Waiting for players... connected: {@interface._interfaces.Players.players.Count}");
+                    Debug.Log($"Waiting for players... connected: {@interface.Interfaces.Players.players.Count}");
                     yield return new WaitForSeconds(5);
                     gameplayState = 2;
                     continue;
                 }
-            
+
                 switch (gameplayState)
                 {
                     case 2:
@@ -103,21 +107,22 @@ namespace Network
 
         public void UpdatePlayerMatchStatus(uint id)
         {
-            var message = new LoadMapMessage(gameplayState, _mapDownloadLink, 
+            var message = new LoadMapMessage(gameplayState, _mapDownloadLink,
                 _mapHash, false, id);
             @interface.SendMessages(message);
         }
 
         private void UpdatePlayerMatchStatus()
         {
-            var message = new LoadMapMessage(gameplayState, _mapDownloadLink, 
+            var message = new LoadMapMessage(gameplayState, _mapDownloadLink,
                 _mapHash, true, 0);
             @interface.SendMessages(message);
         }
 
         public void SendWaitingRoomData()
         {
-            var message = new WaitingRoomMessage(@interface._interfaces.Players.players.Count, _minimumPlayers, _serverIntro, true);
+            var message = new WaitingRoomMessage(@interface.Interfaces.Players.players.Count, _minimumPlayers,
+                _serverIntro, true);
             @interface.SendMessages(message);
         }
 
@@ -126,16 +131,18 @@ namespace Network
             Debug.Log(index);
             switch (index)
             {
-                case -1: @interface._interfaces.Players.SpawnPlayer(peerID);
+                case -1:
+                    @interface.Interfaces.Players.SpawnPlayer(peerID);
                     break;
-                case 2: SendWaitingRoomData();
+                case 2:
+                    SendWaitingRoomData();
                     break;
             }
         }
 
         private void LoadSpawnPoints(Scene scene, LoadSceneMode mode)
         {
-            if(!scene.name.Contains("map")) return;
+            if (!scene.name.Contains("map")) return;
 
             Debug.Log("Loading SpawnPoints...");
 
@@ -152,11 +159,6 @@ namespace Network
             yield return new WaitForSeconds(1);
             if (gameplayState.Equals(1))
                 StartCoroutine(CountDownMatch());
-        }
-
-        private void OnDestroy()
-        {
-            SceneManager.sceneLoaded -= LoadSpawnPoints;
         }
     }
 }

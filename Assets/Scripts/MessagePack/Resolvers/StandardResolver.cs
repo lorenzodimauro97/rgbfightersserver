@@ -5,32 +5,35 @@ using System.Linq;
 using MessagePack.Formatters;
 using MessagePack.Internal;
 using MessagePack.Resolvers;
+using MessagePack.Unity;
 
 #pragma warning disable SA1403 // File may only contain a single namespace
 
 namespace MessagePack.Resolvers
 {
     /// <summary>
-    /// Default composited resolver, builtin -> attribute -> dynamic enum -> dynamic generic -> dynamic union -> dynamic object -> primitive.
+    ///     Default composited resolver, builtin -> attribute -> dynamic enum -> dynamic generic -> dynamic union -> dynamic
+    ///     object -> primitive.
     /// </summary>
     public sealed class StandardResolver : IFormatterResolver
     {
         /// <summary>
-        /// The singleton instance that can be used.
+        ///     The singleton instance that can be used.
         /// </summary>
         public static readonly StandardResolver Instance;
 
         /// <summary>
-        /// A <see cref="MessagePackSerializerOptions"/> instance with this formatter pre-configured.
+        ///     A <see cref="MessagePackSerializerOptions" /> instance with this formatter pre-configured.
         /// </summary>
         public static readonly MessagePackSerializerOptions Options;
 
-        private static readonly IFormatterResolver[] Resolvers = StandardResolverHelper.DefaultResolvers.Concat(new IFormatterResolver[]
-        {
+        private static readonly IFormatterResolver[] Resolvers = StandardResolverHelper.DefaultResolvers.Concat(
+            new IFormatterResolver[]
+            {
 #if !ENABLE_IL2CPP && !NET_STANDARD_2_0
-            DynamicObjectResolver.Instance, // Try Object
+                DynamicObjectResolver.Instance, // Try Object
 #endif
-        }).ToArray();
+            }).ToArray();
 
         static StandardResolver()
         {
@@ -57,16 +60,16 @@ namespace MessagePack.Resolvers
                 {
                     // final fallback
 #if !ENABLE_IL2CPP
-                    Formatter = (IMessagePackFormatter<T>)DynamicObjectTypeFallbackFormatter.Instance;
+                    Formatter = (IMessagePackFormatter<T>) DynamicObjectTypeFallbackFormatter.Instance;
 #else
                     Formatter = PrimitiveObjectResolver.Instance.GetFormatter<T>();
 #endif
                 }
                 else
                 {
-                    foreach (IFormatterResolver item in Resolvers)
+                    foreach (var item in Resolvers)
                     {
-                        IMessagePackFormatter<T> f = item.GetFormatter<T>();
+                        var f = item.GetFormatter<T>();
                         if (f != null)
                         {
                             Formatter = f;
@@ -81,22 +84,23 @@ namespace MessagePack.Resolvers
     public sealed class ContractlessStandardResolver : IFormatterResolver
     {
         /// <summary>
-        /// The singleton instance that can be used.
+        ///     The singleton instance that can be used.
         /// </summary>
         public static readonly ContractlessStandardResolver Instance;
 
         /// <summary>
-        /// A <see cref="MessagePackSerializerOptions"/> instance with this formatter pre-configured.
+        ///     A <see cref="MessagePackSerializerOptions" /> instance with this formatter pre-configured.
         /// </summary>
         public static readonly MessagePackSerializerOptions Options;
 
-        private static readonly IFormatterResolver[] Resolvers = StandardResolverHelper.DefaultResolvers.Concat(new IFormatterResolver[]
-        {
+        private static readonly IFormatterResolver[] Resolvers = StandardResolverHelper.DefaultResolvers.Concat(
+            new IFormatterResolver[]
+            {
 #if !ENABLE_IL2CPP && !NET_STANDARD_2_0
-            DynamicObjectResolver.Instance, // Try Object
-            DynamicContractlessObjectResolver.Instance, // Serializes keys as strings
+                DynamicObjectResolver.Instance, // Try Object
+                DynamicContractlessObjectResolver.Instance, // Serializes keys as strings
 #endif
-        }).ToArray();
+            }).ToArray();
 
         static ContractlessStandardResolver()
         {
@@ -123,16 +127,16 @@ namespace MessagePack.Resolvers
                 {
                     // final fallback
 #if !ENABLE_IL2CPP
-                    Formatter = (IMessagePackFormatter<T>)DynamicObjectTypeFallbackFormatter.Instance;
+                    Formatter = (IMessagePackFormatter<T>) DynamicObjectTypeFallbackFormatter.Instance;
 #else
                     Formatter = PrimitiveObjectResolver.Instance.GetFormatter<T>();
 #endif
                 }
                 else
                 {
-                    foreach (IFormatterResolver item in Resolvers)
+                    foreach (var item in Resolvers)
                     {
-                        IMessagePackFormatter<T> f = item.GetFormatter<T>();
+                        var f = item.GetFormatter<T>();
                         if (f != null)
                         {
                             Formatter = f;
@@ -147,21 +151,22 @@ namespace MessagePack.Resolvers
     public sealed class StandardResolverAllowPrivate : IFormatterResolver
     {
         /// <summary>
-        /// The singleton instance that can be used.
+        ///     The singleton instance that can be used.
         /// </summary>
         public static readonly StandardResolverAllowPrivate Instance;
 
         /// <summary>
-        /// A <see cref="MessagePackSerializerOptions"/> instance with this formatter pre-configured.
+        ///     A <see cref="MessagePackSerializerOptions" /> instance with this formatter pre-configured.
         /// </summary>
         public static readonly MessagePackSerializerOptions Options;
 
-        private static readonly IFormatterResolver[] Resolvers = StandardResolverHelper.DefaultResolvers.Concat(new IFormatterResolver[]
-        {
+        private static readonly IFormatterResolver[] Resolvers = StandardResolverHelper.DefaultResolvers.Concat(
+            new IFormatterResolver[]
+            {
 #if !ENABLE_IL2CPP && !NET_STANDARD_2_0
-            DynamicObjectResolverAllowPrivate.Instance, // Try Object
+                DynamicObjectResolverAllowPrivate.Instance, // Try Object
 #endif
-        }).ToArray();
+            }).ToArray();
 
         static StandardResolverAllowPrivate()
         {
@@ -188,16 +193,16 @@ namespace MessagePack.Resolvers
                 {
                     // final fallback
 #if !ENABLE_IL2CPP
-                    Formatter = (IMessagePackFormatter<T>)DynamicObjectTypeFallbackFormatter.Instance;
+                    Formatter = (IMessagePackFormatter<T>) DynamicObjectTypeFallbackFormatter.Instance;
 #else
                     Formatter = PrimitiveObjectResolver.Instance.GetFormatter<T>();
 #endif
                 }
                 else
                 {
-                    foreach (IFormatterResolver item in Resolvers)
+                    foreach (var item in Resolvers)
                     {
-                        IMessagePackFormatter<T> f = item.GetFormatter<T>();
+                        var f = item.GetFormatter<T>();
                         if (f != null)
                         {
                             Formatter = f;
@@ -212,22 +217,23 @@ namespace MessagePack.Resolvers
     public sealed class ContractlessStandardResolverAllowPrivate : IFormatterResolver
     {
         /// <summary>
-        /// The singleton instance that can be used.
+        ///     The singleton instance that can be used.
         /// </summary>
         public static readonly ContractlessStandardResolverAllowPrivate Instance;
 
         /// <summary>
-        /// A <see cref="MessagePackSerializerOptions"/> instance with this formatter pre-configured.
+        ///     A <see cref="MessagePackSerializerOptions" /> instance with this formatter pre-configured.
         /// </summary>
         public static readonly MessagePackSerializerOptions Options;
 
-        private static readonly IFormatterResolver[] Resolvers = StandardResolverHelper.DefaultResolvers.Concat(new IFormatterResolver[]
-        {
+        private static readonly IFormatterResolver[] Resolvers = StandardResolverHelper.DefaultResolvers.Concat(
+            new IFormatterResolver[]
+            {
 #if !ENABLE_IL2CPP && !NET_STANDARD_2_0
-            DynamicObjectResolverAllowPrivate.Instance, // Try Object
-            DynamicContractlessObjectResolverAllowPrivate.Instance, // Serializes keys as strings
+                DynamicObjectResolverAllowPrivate.Instance, // Try Object
+                DynamicContractlessObjectResolverAllowPrivate.Instance, // Serializes keys as strings
 #endif
-        }).ToArray();
+            }).ToArray();
 
         static ContractlessStandardResolverAllowPrivate()
         {
@@ -254,16 +260,16 @@ namespace MessagePack.Resolvers
                 {
                     // final fallback
 #if !ENABLE_IL2CPP
-                    Formatter = (IMessagePackFormatter<T>)DynamicObjectTypeFallbackFormatter.Instance;
+                    Formatter = (IMessagePackFormatter<T>) DynamicObjectTypeFallbackFormatter.Instance;
 #else
                     Formatter = PrimitiveObjectResolver.Instance.GetFormatter<T>();
 #endif
                 }
                 else
                 {
-                    foreach (IFormatterResolver item in Resolvers)
+                    foreach (var item in Resolvers)
                     {
-                        IMessagePackFormatter<T> f = item.GetFormatter<T>();
+                        var f = item.GetFormatter<T>();
                         if (f != null)
                         {
                             Formatter = f;
@@ -280,13 +286,13 @@ namespace MessagePack.Internal
 {
     internal static class StandardResolverHelper
     {
-        public static readonly IFormatterResolver[] DefaultResolvers = new IFormatterResolver[]
+        public static readonly IFormatterResolver[] DefaultResolvers =
         {
             BuiltinResolver.Instance, // Try Builtin
             AttributeFormatterResolver.Instance, // Try use [MessagePackFormatter]
 
 #if UNITY_2018_3_OR_NEWER
-            MessagePack.Unity.UnityResolver.Instance,
+            UnityResolver.Instance,
 #endif
 
 #if !ENABLE_IL2CPP && !NET_STANDARD_2_0

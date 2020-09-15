@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Buffers;
 
 namespace MessagePack
 {
@@ -11,9 +10,9 @@ namespace MessagePack
 #else
     public
 #endif
-    struct Nil : IEquatable<Nil>
+        struct Nil : IEquatable<Nil>
     {
-        public static readonly Nil Default = default(Nil);
+        public static readonly Nil Default = default;
 
         public override bool Equals(object obj)
         {

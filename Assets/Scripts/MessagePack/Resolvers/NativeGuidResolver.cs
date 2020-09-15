@@ -9,7 +9,7 @@ namespace MessagePack.Resolvers
     public sealed class NativeGuidResolver : IFormatterResolver
     {
         /// <summary>
-        /// The singleton instance that can be used.
+        ///     The singleton instance that can be used.
         /// </summary>
         public static readonly NativeGuidResolver Instance = new NativeGuidResolver();
 
@@ -25,13 +25,8 @@ namespace MessagePack.Resolvers
         private static object GetFormatterHelper(Type t)
         {
             if (t == typeof(Guid))
-            {
                 return NativeGuidFormatter.Instance;
-            }
-            else if (t == typeof(Guid?))
-            {
-                return new StaticNullableFormatter<Guid>(NativeGuidFormatter.Instance);
-            }
+            if (t == typeof(Guid?)) return new StaticNullableFormatter<Guid>(NativeGuidFormatter.Instance);
 
             return null;
         }
@@ -42,7 +37,7 @@ namespace MessagePack.Resolvers
 
             static FormatterCache()
             {
-                Formatter = (IMessagePackFormatter<T>)GetFormatterHelper(typeof(T));
+                Formatter = (IMessagePackFormatter<T>) GetFormatterHelper(typeof(T));
             }
         }
     }

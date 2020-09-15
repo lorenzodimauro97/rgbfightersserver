@@ -8,7 +8,7 @@ using System;
 namespace MessagePack.Formatters
 {
     /// <summary>
-    /// Serialize by .NET native DateTime binary format.
+    ///     Serialize by .NET native DateTime binary format.
     /// </summary>
     public sealed class NativeDateTimeFormatter : IMessagePackFormatter<DateTime>
     {
@@ -40,10 +40,7 @@ namespace MessagePack.Formatters
             else
             {
                 writer.WriteArrayHeader(value.Length);
-                for (int i = 0; i < value.Length; i++)
-                {
-                    writer.Write(value[i].ToBinary());
-                }
+                for (var i = 0; i < value.Length; i++) writer.Write(value[i].ToBinary());
             }
         }
 
@@ -53,18 +50,16 @@ namespace MessagePack.Formatters
             {
                 return null;
             }
-            else
-            {
-                var len = reader.ReadArrayHeader();
-                var array = new DateTime[len];
-                for (int i = 0; i < array.Length; i++)
-                {
-                    var dateData = reader.ReadInt64();
-                    array[i] = DateTime.FromBinary(dateData);
-                }
 
-                return array;
+            var len = reader.ReadArrayHeader();
+            var array = new DateTime[len];
+            for (var i = 0; i < array.Length; i++)
+            {
+                var dateData = reader.ReadInt64();
+                array[i] = DateTime.FromBinary(dateData);
             }
+
+            return array;
         }
     }
 }

@@ -9,7 +9,7 @@ using UnityEngine;
 namespace MessagePack.Unity.Extension
 {
     /// <summary>
-    /// Special Resolver for Vector2[], Vector3[], Vector4[], Quaternion[], Color[], Bounds[], Rect[].
+    ///     Special Resolver for Vector2[], Vector3[], Vector4[], Quaternion[], Color[], Bounds[], Rect[].
     /// </summary>
     public class UnityBlitResolver : IFormatterResolver
     {
@@ -30,13 +30,14 @@ namespace MessagePack.Unity.Extension
 
             static FormatterCache()
             {
-                Formatter = (IMessagePackFormatter<T>)UnityBlitResolverGetFormatterHelper.GetFormatter(typeof(T));
+                Formatter = (IMessagePackFormatter<T>) UnityBlitResolverGetFormatterHelper.GetFormatter(typeof(T));
             }
         }
     }
 
     /// <summary>
-    /// Special Resolver for Vector2[], Vector3[], Vector4[], Quaternion[], Color[], Bounds[], Rect[] + int[], float[], double[].
+    ///     Special Resolver for Vector2[], Vector3[], Vector4[], Quaternion[], Color[], Bounds[], Rect[] + int[], float[],
+    ///     double[].
     /// </summary>
     public class UnityBlitWithPrimitiveArrayResolver : IFormatterResolver
     {
@@ -57,35 +58,30 @@ namespace MessagePack.Unity.Extension
 
             static FormatterCache()
             {
-                Formatter = (IMessagePackFormatter<T>)UnityBlitWithPrimitiveResolverGetFormatterHelper.GetFormatter(typeof(T));
-                if (Formatter == null)
-                {
-                    Formatter = UnityBlitResolver.Instance.GetFormatter<T>();
-                }
+                Formatter =
+                    (IMessagePackFormatter<T>) UnityBlitWithPrimitiveResolverGetFormatterHelper.GetFormatter(typeof(T));
+                if (Formatter == null) Formatter = UnityBlitResolver.Instance.GetFormatter<T>();
             }
         }
     }
 
     internal static class UnityBlitResolverGetFormatterHelper
     {
-        private static readonly Dictionary<Type, Type> FormatterMap = new Dictionary<Type, Type>()
+        private static readonly Dictionary<Type, Type> FormatterMap = new Dictionary<Type, Type>
         {
-              { typeof(Vector2[]), typeof(Vector2ArrayBlitFormatter) },
-              { typeof(Vector3[]), typeof(Vector3ArrayBlitFormatter) },
-              { typeof(Vector4[]), typeof(Vector4ArrayBlitFormatter) },
-              { typeof(Quaternion[]), typeof(QuaternionArrayBlitFormatter) },
-              { typeof(Color[]), typeof(ColorArrayBlitFormatter) },
-              { typeof(Bounds[]), typeof(BoundsArrayBlitFormatter) },
-              { typeof(Rect[]), typeof(RectArrayBlitFormatter) },
+            {typeof(Vector2[]), typeof(Vector2ArrayBlitFormatter)},
+            {typeof(Vector3[]), typeof(Vector3ArrayBlitFormatter)},
+            {typeof(Vector4[]), typeof(Vector4ArrayBlitFormatter)},
+            {typeof(Quaternion[]), typeof(QuaternionArrayBlitFormatter)},
+            {typeof(Color[]), typeof(ColorArrayBlitFormatter)},
+            {typeof(Bounds[]), typeof(BoundsArrayBlitFormatter)},
+            {typeof(Rect[]), typeof(RectArrayBlitFormatter)}
         };
 
         internal static object GetFormatter(Type t)
         {
             Type formatterType;
-            if (FormatterMap.TryGetValue(t, out formatterType))
-            {
-                return Activator.CreateInstance(formatterType);
-            }
+            if (FormatterMap.TryGetValue(t, out formatterType)) return Activator.CreateInstance(formatterType);
 
             return null;
         }
@@ -93,20 +89,17 @@ namespace MessagePack.Unity.Extension
 
     internal static class UnityBlitWithPrimitiveResolverGetFormatterHelper
     {
-        private static readonly Dictionary<Type, Type> FormatterMap = new Dictionary<Type, Type>()
+        private static readonly Dictionary<Type, Type> FormatterMap = new Dictionary<Type, Type>
         {
-              { typeof(int[]), typeof(IntArrayBlitFormatter) },
-              { typeof(float[]), typeof(FloatArrayBlitFormatter) },
-              { typeof(double[]), typeof(DoubleArrayBlitFormatter) },
+            {typeof(int[]), typeof(IntArrayBlitFormatter)},
+            {typeof(float[]), typeof(FloatArrayBlitFormatter)},
+            {typeof(double[]), typeof(DoubleArrayBlitFormatter)}
         };
 
         internal static object GetFormatter(Type t)
         {
             Type formatterType;
-            if (FormatterMap.TryGetValue(t, out formatterType))
-            {
-                return Activator.CreateInstance(formatterType);
-            }
+            if (FormatterMap.TryGetValue(t, out formatterType)) return Activator.CreateInstance(formatterType);
 
             return null;
         }
